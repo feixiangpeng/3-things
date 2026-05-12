@@ -1,0 +1,542 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000030 /* ThreeThingsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* ThreeThingsApp.swift */; };
+		A00000000000000000000031 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* TaskItem.swift */; };
+		A00000000000000000000032 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* DailyPlan.swift */; };
+		A00000000000000000000033 /* InputMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* InputMode.swift */; };
+		A00000000000000000000034 /* ExtractionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* ExtractionModels.swift */; };
+		A00000000000000000000035 /* ExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* ExtractionProvider.swift */; };
+		A00000000000000000000036 /* MockExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* MockExtractionProvider.swift */; };
+		A00000000000000000000037 /* OpenAIExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* OpenAIExtractionProvider.swift */; };
+		A00000000000000000000038 /* GeminiExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000020 /* GeminiExtractionProvider.swift */; };
+		A00000000000000000000039 /* ExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000021 /* ExtractionService.swift */; };
+		A0000000000000000000003A /* SpeechCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000022 /* SpeechCaptureManager.swift */; };
+		A0000000000000000000003B /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000023 /* AppViewModel.swift */; };
+		A0000000000000000000003C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000024 /* RootView.swift */; };
+		A0000000000000000000003D /* TextCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000025 /* TextCaptureView.swift */; };
+		A0000000000000000000003E /* LockedPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000026 /* LockedPlanView.swift */; };
+		A0000000000000000000003F /* VoiceCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000027 /* VoiceCaptureView.swift */; };
+		A00000000000000000000060 /* SpeechTranscribing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000056 /* SpeechTranscribing.swift */; };
+		A00000000000000000000061 /* MockSpeechTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000057 /* MockSpeechTranscriber.swift */; };
+		A00000000000000000000062 /* AppleOnDeviceSpeechTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000058 /* AppleOnDeviceSpeechTranscriber.swift */; };
+		A00000000000000000000063 /* RecordingPermissionGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000059 /* RecordingPermissionGate.swift */; };
+		A00000000000000000000064 /* VoiceDraftExtracting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005A /* VoiceDraftExtracting.swift */; };
+		A00000000000000000000065 /* FoundationModelsVoiceDraftExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */; };
+		A00000000000000000000066 /* SpeechCaptureManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005C /* SpeechCaptureManagerTests.swift */; };
+		A00000000000000000000067 /* VoiceDraftPostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */; };
+		A00000000000000000000040 /* PendingFinalizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000028 /* PendingFinalizationView.swift */; };
+		A00000000000000000000041 /* FocusDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000029 /* FocusDay.swift */; };
+		A00000000000000000000042 /* AppViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000044 /* AppViewModelTests.swift */; };
+		A00000000000000000000050 /* VoiceExtractionDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000053 /* VoiceExtractionDraft.swift */; };
+		A00000000000000000000051 /* MockVoiceDraftProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000054 /* MockVoiceDraftProvider.swift */; };
+		A00000000000000000000052 /* ExtractionReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000055 /* ExtractionReviewView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A0000000000000000000004A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000004;
+			remoteInfo = ThreeThings;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A0000000000000000000000E /* ThreeThings.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeThings.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000043 /* ThreeThingsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeThingsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000018 /* ThreeThingsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeThingsApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000019 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		A0000000000000000000001A /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
+		A0000000000000000000001B /* InputMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMode.swift; sourceTree = "<group>"; };
+		A0000000000000000000001C /* ExtractionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionModels.swift; sourceTree = "<group>"; };
+		A0000000000000000000001D /* ExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionProvider.swift; sourceTree = "<group>"; };
+		A0000000000000000000001E /* MockExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExtractionProvider.swift; sourceTree = "<group>"; };
+		A0000000000000000000001F /* OpenAIExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIExtractionProvider.swift; sourceTree = "<group>"; };
+		A00000000000000000000020 /* GeminiExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiExtractionProvider.swift; sourceTree = "<group>"; };
+		A00000000000000000000021 /* ExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionService.swift; sourceTree = "<group>"; };
+		A00000000000000000000022 /* SpeechCaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCaptureManager.swift; sourceTree = "<group>"; };
+		A00000000000000000000023 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000024 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A00000000000000000000025 /* TextCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCaptureView.swift; sourceTree = "<group>"; };
+		A00000000000000000000026 /* LockedPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedPlanView.swift; sourceTree = "<group>"; };
+		A00000000000000000000027 /* VoiceCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCaptureView.swift; sourceTree = "<group>"; };
+		A00000000000000000000056 /* SpeechTranscribing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechTranscribing.swift; sourceTree = "<group>"; };
+		A00000000000000000000057 /* MockSpeechTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSpeechTranscriber.swift; sourceTree = "<group>"; };
+		A00000000000000000000058 /* AppleOnDeviceSpeechTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleOnDeviceSpeechTranscriber.swift; sourceTree = "<group>"; };
+		A00000000000000000000059 /* RecordingPermissionGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPermissionGate.swift; sourceTree = "<group>"; };
+		A0000000000000000000005A /* VoiceDraftExtracting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraftExtracting.swift; sourceTree = "<group>"; };
+		A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsVoiceDraftExtractor.swift; sourceTree = "<group>"; };
+		A0000000000000000000005C /* SpeechCaptureManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCaptureManagerTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraftPostProcessorTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000028 /* PendingFinalizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingFinalizationView.swift; sourceTree = "<group>"; };
+		A00000000000000000000029 /* FocusDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusDay.swift; sourceTree = "<group>"; };
+		A00000000000000000000044 /* AppViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModelTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000053 /* VoiceExtractionDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionDraft.swift; sourceTree = "<group>"; };
+		A00000000000000000000054 /* MockVoiceDraftProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockVoiceDraftProvider.swift; sourceTree = "<group>"; };
+		A00000000000000000000055 /* ExtractionReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionReviewView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A0000000000000000000000C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000046 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000F /* ThreeThings */,
+				A00000000000000000000045 /* ThreeThingsTests */,
+				A00000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000E /* ThreeThings.app */,
+				A00000000000000000000043 /* ThreeThingsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000000F /* ThreeThings */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000018 /* ThreeThingsApp.swift */,
+				A00000000000000000000014 /* ViewModels */,
+				A00000000000000000000015 /* Views */,
+				A00000000000000000000010 /* Models */,
+				A00000000000000000000011 /* Services */,
+				A00000000000000000000016 /* Utilities */,
+				A00000000000000000000017 /* Info.plist */,
+			);
+			path = ThreeThings;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000010 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000019 /* TaskItem.swift */,
+				A0000000000000000000001A /* DailyPlan.swift */,
+				A0000000000000000000001B /* InputMode.swift */,
+				A00000000000000000000053 /* VoiceExtractionDraft.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000011 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000012 /* Extraction */,
+				A00000000000000000000013 /* Speech */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000012 /* Extraction */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000001C /* ExtractionModels.swift */,
+				A0000000000000000000001D /* ExtractionProvider.swift */,
+				A0000000000000000000001E /* MockExtractionProvider.swift */,
+				A0000000000000000000001F /* OpenAIExtractionProvider.swift */,
+				A00000000000000000000020 /* GeminiExtractionProvider.swift */,
+				A00000000000000000000021 /* ExtractionService.swift */,
+				A0000000000000000000005A /* VoiceDraftExtracting.swift */,
+				A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */,
+				A00000000000000000000054 /* MockVoiceDraftProvider.swift */,
+			);
+			path = Extraction;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000013 /* Speech */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000056 /* SpeechTranscribing.swift */,
+				A00000000000000000000057 /* MockSpeechTranscriber.swift */,
+				A00000000000000000000058 /* AppleOnDeviceSpeechTranscriber.swift */,
+				A00000000000000000000059 /* RecordingPermissionGate.swift */,
+				A00000000000000000000022 /* SpeechCaptureManager.swift */,
+			);
+			path = Speech;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000014 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000023 /* AppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000015 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000024 /* RootView.swift */,
+				A00000000000000000000025 /* TextCaptureView.swift */,
+				A00000000000000000000026 /* LockedPlanView.swift */,
+				A00000000000000000000027 /* VoiceCaptureView.swift */,
+				A00000000000000000000055 /* ExtractionReviewView.swift */,
+				A00000000000000000000028 /* PendingFinalizationView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000016 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000029 /* FocusDay.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000045 /* ThreeThingsTests */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000044 /* AppViewModelTests.swift */,
+				A0000000000000000000005C /* SpeechCaptureManagerTests.swift */,
+				A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */,
+			);
+			path = ThreeThingsTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000004 /* ThreeThings */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000006 /* Build configuration list for PBXNativeTarget "ThreeThings" */;
+			buildPhases = (
+				A0000000000000000000000B /* Sources */,
+				A0000000000000000000000C /* Frameworks */,
+				A0000000000000000000000D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ThreeThings;
+			productName = ThreeThings;
+			productReference = A0000000000000000000000E /* ThreeThings.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000049 /* ThreeThingsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0000000000000000000004E /* Build configuration list for PBXNativeTarget "ThreeThingsTests" */;
+			buildPhases = (
+				A00000000000000000000047 /* Sources */,
+				A00000000000000000000046 /* Frameworks */,
+				A00000000000000000000048 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0000000000000000000004B /* PBXTargetDependency */,
+			);
+			name = ThreeThingsTests;
+			productName = ThreeThingsTests;
+			productReference = A00000000000000000000043 /* ThreeThingsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A00000000000000000000004 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					A00000000000000000000049 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = A00000000000000000000004;
+					};
+				};
+			};
+			buildConfigurationList = A00000000000000000000005 /* Build configuration list for PBXProject "ThreeThings" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A00000000000000000000002;
+			productRefGroup = A00000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00000000000000000000004 /* ThreeThings */,
+				A00000000000000000000049 /* ThreeThingsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A0000000000000000000000D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000048 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A0000000000000000000000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000030 /* ThreeThingsApp.swift in Sources */,
+				A00000000000000000000031 /* TaskItem.swift in Sources */,
+				A00000000000000000000032 /* DailyPlan.swift in Sources */,
+				A00000000000000000000033 /* InputMode.swift in Sources */,
+				A00000000000000000000050 /* VoiceExtractionDraft.swift in Sources */,
+				A00000000000000000000034 /* ExtractionModels.swift in Sources */,
+				A00000000000000000000035 /* ExtractionProvider.swift in Sources */,
+				A00000000000000000000036 /* MockExtractionProvider.swift in Sources */,
+				A00000000000000000000037 /* OpenAIExtractionProvider.swift in Sources */,
+				A00000000000000000000038 /* GeminiExtractionProvider.swift in Sources */,
+				A00000000000000000000039 /* ExtractionService.swift in Sources */,
+				A00000000000000000000051 /* MockVoiceDraftProvider.swift in Sources */,
+				A0000000000000000000003A /* SpeechCaptureManager.swift in Sources */,
+				A00000000000000000000060 /* SpeechTranscribing.swift in Sources */,
+				A00000000000000000000061 /* MockSpeechTranscriber.swift in Sources */,
+				A00000000000000000000062 /* AppleOnDeviceSpeechTranscriber.swift in Sources */,
+				A00000000000000000000063 /* RecordingPermissionGate.swift in Sources */,
+				A00000000000000000000064 /* VoiceDraftExtracting.swift in Sources */,
+				A00000000000000000000065 /* FoundationModelsVoiceDraftExtractor.swift in Sources */,
+				A0000000000000000000003B /* AppViewModel.swift in Sources */,
+				A0000000000000000000003C /* RootView.swift in Sources */,
+				A0000000000000000000003D /* TextCaptureView.swift in Sources */,
+				A0000000000000000000003E /* LockedPlanView.swift in Sources */,
+				A0000000000000000000003F /* VoiceCaptureView.swift in Sources */,
+				A00000000000000000000052 /* ExtractionReviewView.swift in Sources */,
+				A00000000000000000000040 /* PendingFinalizationView.swift in Sources */,
+				A00000000000000000000041 /* FocusDay.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000047 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000042 /* AppViewModelTests.swift in Sources */,
+				A00000000000000000000066 /* SpeechCaptureManagerTests.swift in Sources */,
+				A00000000000000000000067 /* VoiceDraftPostProcessorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A0000000000000000000004B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000004 /* ThreeThings */;
+			targetProxy = A0000000000000000000004A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A00000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A00000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A00000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ThreeThings/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ismaelrobles.threethings;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A0000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ThreeThings/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ismaelrobles.threethings;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A0000000000000000000004C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ismaelrobles.threethings.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThreeThings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ThreeThings";
+			};
+			name = Debug;
+		};
+		A0000000000000000000004D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ismaelrobles.threethings.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThreeThings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ThreeThings";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00000000000000000000005 /* Build configuration list for PBXProject "ThreeThings" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000007 /* Debug */,
+				A00000000000000000000008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000006 /* Build configuration list for PBXNativeTarget "ThreeThings" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000009 /* Debug */,
+				A0000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0000000000000000000004E /* Build configuration list for PBXNativeTarget "ThreeThingsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0000000000000000000004C /* Debug */,
+				A0000000000000000000004D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000001 /* Project object */;
+}
