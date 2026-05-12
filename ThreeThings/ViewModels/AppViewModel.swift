@@ -199,10 +199,6 @@ final class AppViewModel: ObservableObject {
         saveState()
     }
 
-    func lockPlanFromText() {
-        confirmLockPlan()
-    }
-
     func toggleCompletion(taskID: UUID) {
         guard plan.isLocked,
               let index = plan.tasks.firstIndex(where: { $0.id == taskID }) else {

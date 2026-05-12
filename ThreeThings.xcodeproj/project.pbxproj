@@ -11,12 +11,6 @@
 		A00000000000000000000031 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* TaskItem.swift */; };
 		A00000000000000000000032 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* DailyPlan.swift */; };
 		A00000000000000000000033 /* InputMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* InputMode.swift */; };
-		A00000000000000000000034 /* ExtractionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* ExtractionModels.swift */; };
-		A00000000000000000000035 /* ExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* ExtractionProvider.swift */; };
-		A00000000000000000000036 /* MockExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* MockExtractionProvider.swift */; };
-		A00000000000000000000037 /* OpenAIExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* OpenAIExtractionProvider.swift */; };
-		A00000000000000000000038 /* GeminiExtractionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000020 /* GeminiExtractionProvider.swift */; };
-		A00000000000000000000039 /* ExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000021 /* ExtractionService.swift */; };
 		A0000000000000000000003A /* SpeechCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000022 /* SpeechCaptureManager.swift */; };
 		A0000000000000000000003B /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000023 /* AppViewModel.swift */; };
 		A0000000000000000000003C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000024 /* RootView.swift */; };
@@ -57,12 +51,6 @@
 		A00000000000000000000019 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		A0000000000000000000001A /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		A0000000000000000000001B /* InputMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMode.swift; sourceTree = "<group>"; };
-		A0000000000000000000001C /* ExtractionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionModels.swift; sourceTree = "<group>"; };
-		A0000000000000000000001D /* ExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionProvider.swift; sourceTree = "<group>"; };
-		A0000000000000000000001E /* MockExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExtractionProvider.swift; sourceTree = "<group>"; };
-		A0000000000000000000001F /* OpenAIExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIExtractionProvider.swift; sourceTree = "<group>"; };
-		A00000000000000000000020 /* GeminiExtractionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiExtractionProvider.swift; sourceTree = "<group>"; };
-		A00000000000000000000021 /* ExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractionService.swift; sourceTree = "<group>"; };
 		A00000000000000000000022 /* SpeechCaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCaptureManager.swift; sourceTree = "<group>"; };
 		A00000000000000000000023 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		A00000000000000000000024 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -158,12 +146,6 @@
 		A00000000000000000000012 /* Extraction */ = {
 			isa = PBXGroup;
 			children = (
-				A0000000000000000000001C /* ExtractionModels.swift */,
-				A0000000000000000000001D /* ExtractionProvider.swift */,
-				A0000000000000000000001E /* MockExtractionProvider.swift */,
-				A0000000000000000000001F /* OpenAIExtractionProvider.swift */,
-				A00000000000000000000020 /* GeminiExtractionProvider.swift */,
-				A00000000000000000000021 /* ExtractionService.swift */,
 				A0000000000000000000005A /* VoiceDraftExtracting.swift */,
 				A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */,
 				A00000000000000000000054 /* MockVoiceDraftProvider.swift */,
@@ -324,12 +306,6 @@
 				A00000000000000000000032 /* DailyPlan.swift in Sources */,
 				A00000000000000000000033 /* InputMode.swift in Sources */,
 				A00000000000000000000050 /* VoiceExtractionDraft.swift in Sources */,
-				A00000000000000000000034 /* ExtractionModels.swift in Sources */,
-				A00000000000000000000035 /* ExtractionProvider.swift in Sources */,
-				A00000000000000000000036 /* MockExtractionProvider.swift in Sources */,
-				A00000000000000000000037 /* OpenAIExtractionProvider.swift in Sources */,
-				A00000000000000000000038 /* GeminiExtractionProvider.swift in Sources */,
-				A00000000000000000000039 /* ExtractionService.swift in Sources */,
 				A00000000000000000000051 /* MockVoiceDraftProvider.swift in Sources */,
 				A0000000000000000000003A /* SpeechCaptureManager.swift in Sources */,
 				A00000000000000000000060 /* SpeechTranscribing.swift in Sources */,
