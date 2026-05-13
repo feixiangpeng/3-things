@@ -43,6 +43,7 @@
 		A00000000000000000000087 /* voice_extraction_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000074 /* voice_extraction_cases.json */; };
 		A00000000000000000000094 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000093 /* ThemePalette.swift */; };
 		A00000000000000000000098 /* LiveSpeechCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000097 /* LiveSpeechCapture.swift */; };
+		A00000000000000000000104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000105 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		A00000000000000000000074 /* voice_extraction_cases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = voice_extraction_cases.json; sourceTree = "<group>"; };
 		A00000000000000000000093 /* ThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePalette.swift; sourceTree = "<group>"; };
 		A00000000000000000000097 /* LiveSpeechCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSpeechCapture.swift; sourceTree = "<group>"; };
+		A00000000000000000000105 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 				A00000000000000000000016 /* Utilities */,
 				A00000000000000000000099 /* Theme */,
 				A0000000000000000000007E /* Fixtures */,
+				A00000000000000000000105 /* Assets.xcassets */,
 				A00000000000000000000017 /* Info.plist */,
 			);
 			path = ThreeThings;
@@ -350,6 +353,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000104 /* Assets.xcassets in Resources */,
 				A00000000000000000000086 /* voice_extraction_cases.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
