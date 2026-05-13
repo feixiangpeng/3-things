@@ -56,7 +56,7 @@ struct RootView: View {
             } label: {
                 Label("Use voice instead", systemImage: "mic.fill")
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(ThemeSecondaryOutlineButtonStyle())
 
             TextCaptureView(viewModel: viewModel)
         }

@@ -70,7 +70,7 @@ struct TextCaptureView: View {
             Button("Lock Today's Things") {
                 isShowingLockConfirmation = true
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(ThemePrimaryProminentButtonStyle())
             .disabled(!viewModel.canPresentLockConfirmation)
 
             Text("Lock when at least 1 task is ready (up to 3). Tasks lock until the next focus day at 2:00 AM local time.")

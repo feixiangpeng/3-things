@@ -45,6 +45,15 @@ struct VoiceCaptureView: View {
                     .foregroundStyle(ThemePalette.muted)
             }
 
+            #if DEBUG
+            if !speechManager.speechDiagnosticLine.isEmpty {
+                Text(speechManager.speechDiagnosticLine)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(ThemePalette.muted)
+                    .themeCard(cornerRadius: 8, padding: 8)
+            }
+            #endif
+
 #if DEBUG
             if !compact {
                 DisclosureGroup("Eval fixtures (debug)") {
@@ -75,29 +84,33 @@ struct VoiceCaptureView: View {
     }
 
     private var recordToggleRow: some View {
-        HStack(spacing: 14) {
-            Button {
-                switch speechManager.phase {
-                case .recording:
+        let verticalPad: CGFloat = compact ? 10 : 14
+        return HStack(spacing: 14) {
+            if speechManager.phase == .recording {
+                Button {
                     speechManager.stopRecording()
-                case .idle, .failed:
-                    viewModel.resetVoiceCustomizationForNewRecording()
-                    speechManager.startRecording()
-                case .requestingPermission, .transcribing:
-                    break
+                } label: {
+                    Label("Stop recording", systemImage: "stop.circle.fill")
+                        .font(.headline)
                 }
-            } label: {
-                let recording = speechManager.phase == .recording
-                Label(
-                    recording ? "Stop recording" : "Start speaking",
-                    systemImage: recording ? "stop.circle.fill" : "mic.circle.fill"
-                )
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, compact ? 10 : 14)
+                .buttonStyle(ThemeRecordingStopButtonStyle(verticalPadding: verticalPad))
+                .disabled(speechManager.phase == .requestingPermission || speechManager.phase == .transcribing)
+            } else {
+                Button {
+                    switch speechManager.phase {
+                    case .idle, .failed:
+                        viewModel.resetVoiceCustomizationForNewRecording()
+                        speechManager.startRecording()
+                    case .requestingPermission, .recording, .transcribing:
+                        break
+                    }
+                } label: {
+                    Label("Start speaking", systemImage: "mic.circle.fill")
+                        .font(.headline)
+                }
+                .buttonStyle(ThemePrimaryProminentButtonStyle(verticalPadding: verticalPad))
+                .disabled(speechManager.phase == .requestingPermission || speechManager.phase == .transcribing)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(speechManager.phase == .requestingPermission || speechManager.phase == .transcribing)
 
             if speechManager.canCancel, speechManager.phase == .recording {
                 Button("Cancel", role: .cancel) {
@@ -125,7 +138,7 @@ struct VoiceCaptureView: View {
             Button("Generate draft from fixture") {
                 viewModel.generateMockVoiceDraft()
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(ThemeSecondaryOutlineButtonStyle())
         }
     }
 #endif
@@ -157,7 +170,7 @@ struct VoiceCaptureView: View {
                 Text("Listening… transcript updates live.")
                     .font(.footnote.weight(.semibold))
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(ThemePalette.primary)
         case .transcribing:
             HStack(spacing: 8) {
                 ProgressView()

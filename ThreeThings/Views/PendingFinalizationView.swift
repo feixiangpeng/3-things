@@ -15,12 +15,12 @@ struct PendingFinalizationView: View {
                 Button("Done") {
                     viewModel.finalizePendingDay(completed: true)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(ThemePrimaryProminentButtonStyle())
 
                 Button("Not done") {
                     viewModel.finalizePendingDay(completed: false)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(ThemeSecondaryOutlineButtonStyle())
             }
 
             if let dayID = viewModel.pendingFinalizationDayID {

@@ -37,7 +37,7 @@ struct ExtractionReviewView: View {
 
             Text(viewModel.plan.detectedMoreThanThree ? "Pick what matters" : "Review voice draft")
                 .font(.title3.bold())
-                .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : .primary)
+                .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : ThemePalette.primary)
 
             if viewModel.plan.detectedMoreThanThree {
                 Text("I heard more than 3 things. Pick what actually matters today.")
@@ -178,19 +178,19 @@ struct ExtractionReviewView: View {
                 Button("Apply latest voice") {
                     Task { await viewModel.applyLatestVoiceResync() }
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(ThemeSecondaryOutlineButtonStyle())
             }
 
             Button("Lock Today's Things") {
                 isShowingLockConfirmation = true
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(ThemePrimaryProminentButtonStyle())
             .disabled(!viewModel.canPresentLockConfirmation || viewModel.isVoiceRecordingActive)
 
             Button("Start Over With Typing") {
                 viewModel.returnToTextEntry()
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(ThemeSecondaryOutlineButtonStyle())
         }
     }
 }

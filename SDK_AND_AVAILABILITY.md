@@ -10,13 +10,26 @@ This project targets **iOS 26+** so it can use:
 
 ## Simulator vs device
 
-- **Simulator (`targetEnvironment(simulator)`)**: `AppVoiceDraftExtractorFactory.default()` returns `HeuristicVoiceDraftExtractor` (deterministic, no Apple Intelligence required). `SpeechCaptureManager` still exercises permission + (when allowed) `AVAudioRecorder` + `SpeechAnalyzer` if the simulator supports it; transcription may fail — UI should surface **Type instead**.
-- **Device**: factory uses `FoundationModelsVoiceDraftExtractor` for real guided generation.
+- **Simulator (`targetEnvironment(simulator)`)**: `LiveSpeechCaptureFactory.default()` returns **`MockLiveSpeechCapture`** (scripted partials + final string). `AppVoiceDraftExtractorFactory.default()` returns `HeuristicVoiceDraftExtractor` (deterministic, no Apple Intelligence required). `SpeechCaptureManager` still exercises permission + (when allowed) `AVAudioRecorder` + `SpeechAnalyzer` if the simulator supports it; transcription may fail — UI should surface **Type instead**.
+- **Device**: `LiveSpeechCaptureFactory` uses **`SFSpeechLiveCapture`** (`SFSpeechRecognizer` + `AVAudioEngine` tap). `stop()` ends audio and waits for a final recognition callback (or timeout) before cleanup so the last transcript is not dropped. Factory extraction uses `FoundationModelsVoiceDraftExtractor` for real guided generation.
+
+## DEBUG speech diagnostics (device)
+
+- On **DEBUG** device builds, the voice screen shows a short **`speechDiagnosticLine`** fed by `SFSpeechLiveCapture` (`os.Logger` + `Notification.Name.threeThingsSpeechPipelineDebug`): recognizer readiness, buffer-append counts (throttled), partial/final counts, errors, and stop timing.
+- **Console**: filter subsystem `com.ismaelrobles.threethings` category `SpeechLive`.
+
+## Real-device verification (voice → transcript → extraction)
+
+1. Build **DEBUG** to a physical iPhone (iOS 26+), grant **Microphone** + **Speech Recognition**.
+2. Open voice capture, tap **Start speaking**; say a short three-task phrase (e.g. “Tomorrow buy milk, call mom, and book a haircut”).
+3. Confirm **partial text updates** while still recording.
+4. Tap **Stop**; confirm the **final transcript** remains (not blank) and matches what you said closely enough to proceed.
+5. Confirm the app moves into **live extraction / review** (debounced path from `AppViewModel.updateVoiceTranscriptSnapshot`) without needing **Type instead** unless the model is unavailable for your locale.
 
 ## Tests
 
 - Unit tests inject `HeuristicVoiceDraftExtractor()` into `AppViewModel` for stable extraction.
-- `SpeechCaptureManagerTests` covers permission denial without touching hardware transcription.
+- `SpeechCaptureManagerTests` covers permission denial, cancel/reset, scripted partial→final flow, **empty `stop()` merged with last partial** (`returnEmptyStringFromStop`), **`stop()` throws → failed phase**, and **no speech detected** when both partials and final are empty.
 
 ## `xcodebuild` example
 

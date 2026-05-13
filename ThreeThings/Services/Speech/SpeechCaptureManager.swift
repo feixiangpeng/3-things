@@ -16,6 +16,12 @@ final class SpeechCaptureManager: ObservableObject {
     @Published private(set) var latestTranscript: String = ""
     @Published private(set) var errorMessage: String?
 
+    #if DEBUG
+    /// Latest line from the live speech pipeline (device `SFSpeechLiveCapture` only). Shown in DEBUG UI.
+    @Published private(set) var speechDiagnosticLine: String = ""
+    private var speechDebugCancellable: AnyCancellable?
+    #endif
+
     private let liveCapture: LiveSpeechCapturing
     private let permissionGate: any RecordingPermissionGating
     private let locale: Locale
@@ -28,6 +34,15 @@ final class SpeechCaptureManager: ObservableObject {
         self.liveCapture = liveCapture ?? LiveSpeechCaptureFactory.default()
         self.permissionGate = permissionGate
         self.locale = locale
+
+        #if DEBUG
+        speechDebugCancellable = NotificationCenter.default.publisher(for: .threeThingsSpeechPipelineDebug)
+            .compactMap { $0.object as? String }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] line in
+                self?.speechDiagnosticLine = line
+            }
+        #endif
     }
 
     var isBusy: Bool {
@@ -67,6 +82,9 @@ final class SpeechCaptureManager: ObservableObject {
 
         errorMessage = nil
         latestTranscript = ""
+        #if DEBUG
+        speechDiagnosticLine = ""
+        #endif
 
         Task { await startRecordingAsync() }
     }
@@ -137,6 +155,9 @@ final class SpeechCaptureManager: ObservableObject {
         liveCapture.cancel()
         errorMessage = nil
         latestTranscript = ""
+        #if DEBUG
+        speechDiagnosticLine = ""
+        #endif
         phase = .idle
 
         Task {
