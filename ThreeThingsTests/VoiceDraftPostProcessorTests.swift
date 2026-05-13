@@ -48,4 +48,18 @@ final class VoiceDraftPostProcessorTests: XCTestCase {
             XCTAssertEqual(error as? VoiceDraftExtractionError, .emptyModelOutput)
         }
     }
+
+    func testNoActionableTasksThrowsEvenWhenModelInventsTasks() {
+        XCTAssertThrowsError(
+            try VoiceDraftPostProcessor.buildDraft(
+                selectedTasks: ["Prepare for meeting", "Review emails", "Call client"],
+                extraCandidates: ["Organize workspace", "Set reminders"],
+                detectedMoreThanThree: true,
+                containsActionableTasks: false,
+                cleanedTranscript: "Hello? Testing, testing."
+            )
+        ) { error in
+            XCTAssertEqual(error as? VoiceDraftExtractionError, .emptyModelOutput)
+        }
+    }
 }

@@ -205,6 +205,26 @@ final class AppViewModelTests: XCTestCase {
             viewModel.voiceDraft?.cleanedTranscript,
             "Write launch email. Fix onboarding. Review PR. Pay rent. Clean desk."
         )
+        XCTAssertFalse(viewModel.canPresentLockConfirmation)
+        XCTAssertEqual(viewModel.taskValidationMessage, "Resolve or discard extras before locking.")
+    }
+
+    func testOverflowDraftCanOnlyLockAfterExtrasAreDiscarded() {
+        let viewModel = makeViewModel()
+        viewModel.startVoiceDraftReview(from: VoiceExtractionDraft(
+            selectedTasks: ["Write launch email", "Fix onboarding", "Review PR"],
+            extraCandidates: ["Pay rent"],
+            detectedMoreThanThree: true,
+            cleanedTranscript: "Write launch email. Fix onboarding. Review PR. Pay rent."
+        ))
+
+        XCTAssertFalse(viewModel.canPresentLockConfirmation)
+        XCTAssertEqual(viewModel.taskValidationMessage, "Resolve or discard extras before locking.")
+
+        viewModel.discardExtraCandidate(at: 0)
+
+        XCTAssertTrue(viewModel.canPresentLockConfirmation)
+        XCTAssertNil(viewModel.taskValidationMessage)
     }
 
     func testTranscriptExtractionFailureKeepsManualTextFallbackRecoverable() async {
@@ -227,6 +247,25 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.plan.isLocked)
         XCTAssertEqual(viewModel.plan.tasks.map(\.text), ["", "", ""])
         XCTAssertTrue(viewModel.extractionStatus.localizedCaseInsensitiveContains("type instead"))
+    }
+
+    func testNoTasksExtractedShowsSpecificValidationMessage() async {
+        struct EmptyExtractor: VoiceDraftExtracting {
+            var providerName: String { "Empty" }
+
+            func extractDraft(from transcript: String) async throws -> VoiceExtractionDraft {
+                throw VoiceDraftExtractionError.emptyModelOutput
+            }
+        }
+
+        let viewModel = makeViewModel(voiceDraftExtractor: EmptyExtractor())
+        viewModel.selectedInputMode = .voice
+
+        await viewModel.extractTasksFromTranscript("Hello? Testing, testing.")
+
+        XCTAssertEqual(viewModel.selectedInputMode, .text)
+        XCTAssertEqual(viewModel.taskValidationMessage, "No tasks extracted from transcript.")
+        XCTAssertTrue(viewModel.extractionStatus.localizedCaseInsensitiveContains("No tasks extracted"))
     }
 
     func testMockVoiceFixturesAreValidExtractionEvalCases() {

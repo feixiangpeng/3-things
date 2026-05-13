@@ -15,7 +15,7 @@ enum VoiceDraftExtractionError: LocalizedError, Equatable {
         case .localeUnsupported:
             return "This language is not supported by on-device AI yet. Type instead."
         case .emptyModelOutput:
-            return "Could not detect clear tasks. Type instead."
+            return "No tasks extracted from transcript."
         }
     }
 }
@@ -57,9 +57,13 @@ enum VoiceDraftPostProcessor {
         selectedTasks: [String],
         extraCandidates: [String],
         detectedMoreThanThree: Bool,
+        containsActionableTasks: Bool = true,
         cleanedTranscript: String
     ) throws -> VoiceExtractionDraft {
         let cleaned = cleanedTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard containsActionableTasks else {
+            throw VoiceDraftExtractionError.emptyModelOutput
+        }
 
         var selected: [String] = []
         var seen = Set<String>()

@@ -3,6 +3,9 @@ import FoundationModels
 
 @Generable(description: "Extracts a small set of actionable daily tasks from English speech text.")
 struct GeneratedVoiceDraft {
+    @Guide(description: "True only if the transcript contains explicit actionable tasks or commitments.")
+    var containsActionableTasks: Bool
+
     @Guide(description: "Up to three short actionable tasks for today, highest priority first.", .count(0...3))
     var selectedTasks: [String]
 
@@ -36,6 +39,8 @@ struct FoundationModelsVoiceDraftExtractor: VoiceDraftExtracting {
         You help the user pick 1-3 focus tasks for TODAY from a voice transcript (English).
 
         Rules:
+        - If the transcript is just a greeting, microphone test, filler, or has no explicit task/commitment, set containsActionableTasks to false and return empty arrays.
+        - Never invent tasks that are not grounded in the transcript.
         - Each task is concise (under 100 characters), starts with an imperative verb when possible.
         - Preserve the user's spoken order when choosing the top tasks.
         - De-duplicate near-duplicates.
@@ -51,6 +56,7 @@ struct FoundationModelsVoiceDraftExtractor: VoiceDraftExtracting {
             selectedTasks: response.content.selectedTasks,
             extraCandidates: response.content.extraCandidates,
             detectedMoreThanThree: response.content.detectedMoreThanThree,
+            containsActionableTasks: response.content.containsActionableTasks,
             cleanedTranscript: trimmed
         )
     }

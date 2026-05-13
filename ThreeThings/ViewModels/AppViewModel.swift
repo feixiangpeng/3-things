@@ -92,11 +92,18 @@ final class AppViewModel: ObservableObject {
 
         let nonEmptyCount = draftTaskCount
         if nonEmptyCount == 0 {
+            if extractionStatus.localizedCaseInsensitiveContains("No tasks extracted") {
+                return "No tasks extracted from transcript."
+            }
             return "Choose at least 1 thing."
         }
 
         if nonEmptyCount > 3 {
             return "Choose no more than 3 things."
+        }
+
+        if !plan.extras.isEmpty {
+            return "Resolve or discard extras before locking."
         }
 
         if plan.tasks.contains(where: { normalized($0.text).count > 100 }) {
@@ -119,6 +126,7 @@ final class AppViewModel: ObservableObject {
 
         let nonEmptyCount = draftTaskCount
         guard (1...3).contains(nonEmptyCount) else { return false }
+        guard plan.extras.isEmpty else { return false }
 
         guard plan.tasks.allSatisfy({ item in
             let text = normalized(item.text)
