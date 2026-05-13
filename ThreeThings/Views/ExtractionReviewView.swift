@@ -29,6 +29,12 @@ struct ExtractionReviewView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if viewModel.isVoiceRecordingActive {
+                Text("Live draft — still listening")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ThemePalette.muted)
+            }
+
             Text(viewModel.plan.detectedMoreThanThree ? "Pick what matters" : "Review voice draft")
                 .font(.title3.bold())
                 .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : .primary)
@@ -168,11 +174,18 @@ struct ExtractionReviewView: View {
 
     private var actions: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if viewModel.userHasCustomizedVoicePlan {
+                Button("Apply latest voice") {
+                    Task { await viewModel.applyLatestVoiceResync() }
+                }
+                .buttonStyle(.bordered)
+            }
+
             Button("Lock Today's Things") {
                 isShowingLockConfirmation = true
             }
             .buttonStyle(.borderedProminent)
-            .disabled(!viewModel.canPresentLockConfirmation)
+            .disabled(!viewModel.canPresentLockConfirmation || viewModel.isVoiceRecordingActive)
 
             Button("Start Over With Typing") {
                 viewModel.returnToTextEntry()

@@ -11,20 +11,10 @@ struct RootView: View {
                     header
 
                     if viewModel.canEditPlan {
-                        Picker("Input", selection: inputModeBinding) {
-                            ForEach(InputMode.allCases) { mode in
-                                Text(mode.title).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .tint(ThemePalette.primary)
-
                         if viewModel.selectedInputMode == .text {
-                            TextCaptureView(viewModel: viewModel)
-                        } else if viewModel.voiceDraft != nil {
-                            ExtractionReviewView(viewModel: viewModel)
+                            textModeStack
                         } else {
-                            VoiceCaptureView(viewModel: viewModel, speechManager: speechManager)
+                            voiceModeStack
                         }
                     } else {
                         LockedPlanView(viewModel: viewModel)
@@ -59,17 +49,31 @@ struct RootView: View {
         }
     }
 
-    private var inputModeBinding: Binding<InputMode> {
-        Binding(
-            get: { viewModel.selectedInputMode },
-            set: { mode in
-                if mode == .text {
-                    viewModel.returnToTextEntry()
-                } else {
-                    viewModel.selectedInputMode = .voice
-                }
+    private var textModeStack: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Button {
+                viewModel.switchToVoiceFromText()
+            } label: {
+                Label("Use voice instead", systemImage: "mic.fill")
             }
-        )
+            .buttonStyle(.bordered)
+
+            TextCaptureView(viewModel: viewModel)
+        }
+    }
+
+    private var voiceModeStack: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            VoiceCaptureView(
+                viewModel: viewModel,
+                speechManager: speechManager,
+                compact: viewModel.voiceDraft != nil
+            )
+
+            if viewModel.voiceDraft != nil {
+                ExtractionReviewView(viewModel: viewModel)
+            }
+        }
     }
 
     private var header: some View {

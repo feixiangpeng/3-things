@@ -38,6 +38,7 @@
 		A00000000000000000000083 /* VoiceExtractionEvalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000071 /* VoiceExtractionEvalView.swift */; };
 		A00000000000000000000084 /* VoiceExtractionEvalFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */; };
 		A00000000000000000000085 /* VoiceExtractionEvalScorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */; };
+		A00000000000000000000102 /* LiveVoiceExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* LiveVoiceExtractionTests.swift */; };
 		A00000000000000000000086 /* voice_extraction_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000074 /* voice_extraction_cases.json */; };
 		A00000000000000000000087 /* voice_extraction_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000074 /* voice_extraction_cases.json */; };
 		A00000000000000000000094 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000093 /* ThemePalette.swift */; };
@@ -89,6 +90,7 @@
 		A00000000000000000000071 /* VoiceExtractionEvalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalView.swift; sourceTree = "<group>"; };
 		A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalFixtureTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalScorerTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000103 /* LiveVoiceExtractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveVoiceExtractionTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000074 /* voice_extraction_cases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = voice_extraction_cases.json; sourceTree = "<group>"; };
 		A00000000000000000000093 /* ThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePalette.swift; sourceTree = "<group>"; };
 		A00000000000000000000097 /* LiveSpeechCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSpeechCapture.swift; sourceTree = "<group>"; };
@@ -263,6 +265,7 @@
 				A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */,
 				A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */,
 				A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */,
+				A00000000000000000000103 /* LiveVoiceExtractionTests.swift */,
 			);
 			path = ThreeThingsTests;
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 				A00000000000000000000067 /* VoiceDraftPostProcessorTests.swift in Sources */,
 				A00000000000000000000084 /* VoiceExtractionEvalFixtureTests.swift in Sources */,
 				A00000000000000000000085 /* VoiceExtractionEvalScorerTests.swift in Sources */,
+				A00000000000000000000102 /* LiveVoiceExtractionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

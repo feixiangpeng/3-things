@@ -29,20 +29,27 @@ final class AppViewModel: ObservableObject {
     private let voiceDraftExtractor: any VoiceDraftExtracting
     private let mockVoiceDraftProvider: MockVoiceDraftProvider
     private let dateProvider: () -> Date
+    private let liveExtractionDebounceNanoseconds: UInt64
 
     private var momentumOutcomes: [String: Bool] = [:]
     private var lastFinalizedFocusDayID: String?
+
+    private var liveExtractionTask: Task<Void, Never>?
+    private var liveExtractionGeneration: UInt64 = 0
+    private var lastLiveExtractionSource: String?
 
     init(
         defaults: UserDefaults = .standard,
         voiceDraftExtractor: (any VoiceDraftExtracting)? = nil,
         mockVoiceDraftProvider: MockVoiceDraftProvider = MockVoiceDraftProvider(),
-        dateProvider: @escaping () -> Date = Date.init
+        dateProvider: @escaping () -> Date = Date.init,
+        liveExtractionDebounceNanoseconds: UInt64 = 900_000_000
     ) {
         self.defaults = defaults
         self.voiceDraftExtractor = voiceDraftExtractor ?? AppVoiceDraftExtractorFactory.default()
         self.mockVoiceDraftProvider = mockVoiceDraftProvider
         self.dateProvider = dateProvider
+        self.liveExtractionDebounceNanoseconds = liveExtractionDebounceNanoseconds
         self.plan = DailyPlan.empty(for: FocusDay.id(for: dateProvider()))
 
         loadState()
@@ -164,6 +171,9 @@ final class AppViewModel: ObservableObject {
 
         let clamped = String(text.prefix(100))
         plan.tasks[index].text = clamped
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+        }
         syncVoiceDraftFromPlan()
         recomputeMomentum()
         saveState()
@@ -180,6 +190,9 @@ final class AppViewModel: ObservableObject {
         let item = plan.tasks.remove(at: sourceIndex)
         plan.tasks.insert(item, at: destinationIndex)
         normalizeDraftSortOrder()
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+        }
         syncVoiceDraftFromPlan()
         saveState()
     }
@@ -251,6 +264,7 @@ final class AppViewModel: ObservableObject {
         plan.source = .voice
         plan.extras = nextDraft.extraCandidates
         plan.detectedMoreThanThree = nextDraft.detectedMoreThanThree
+        userHasCustomizedVoicePlan = false
 
         for index in plan.tasks.indices {
             plan.tasks[index].text = index < normalizedSelected.count ? normalizedSelected[index] : ""
@@ -282,6 +296,9 @@ final class AppViewModel: ObservableObject {
         if !currentText.isEmpty {
             plan.extras.append(currentText)
         }
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+        }
         syncVoiceDraftFromPlan()
         saveState()
     }
@@ -290,6 +307,9 @@ final class AppViewModel: ObservableObject {
         guard canEditPlan, plan.extras.indices.contains(index) else { return }
 
         plan.extras[index] = normalized(String(text.prefix(100)))
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+        }
         syncVoiceDraftFromPlan()
         saveState()
     }
@@ -298,12 +318,20 @@ final class AppViewModel: ObservableObject {
         guard canEditPlan, plan.extras.indices.contains(index) else { return }
 
         plan.extras.remove(at: index)
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+        }
         syncVoiceDraftFromPlan()
         saveState()
     }
 
     func returnToTextEntry() {
         guard canEditPlan else { return }
+
+        liveExtractionTask?.cancel()
+        liveExtractionTask = nil
+        userHasCustomizedVoicePlan = false
+        lastHeardTranscript = ""
 
         voiceDraft = nil
         plan = DailyPlan.empty(for: plan.focusDayID)
@@ -313,13 +341,94 @@ final class AppViewModel: ObservableObject {
         saveState()
     }
 
+    func switchToVoiceFromText() {
+        guard canEditPlan else { return }
+        selectedInputMode = .voice
+        saveState()
+    }
+
+    func resetVoiceCustomizationForNewRecording() {
+        userHasCustomizedVoicePlan = false
+        lastLiveExtractionSource = nil
+        extractionStatus = ""
+        liveExtractionTask?.cancel()
+        liveExtractionTask = nil
+    }
+
+    func setVoiceRecordingActive(_ active: Bool) {
+        isVoiceRecordingActive = active
+    }
+
+    func updateVoiceTranscriptSnapshot(_ transcript: String) {
+        let clean = normalized(transcript)
+        lastHeardTranscript = clean
+        scheduleLiveExtraction(transcript: transcript)
+    }
+
+    func scheduleLiveExtraction(transcript: String) {
+        let clean = normalized(transcript)
+        guard canEditPlan else { return }
+        guard selectedInputMode == .voice else { return }
+        guard clean.count >= 8 else { return }
+        guard !userHasCustomizedVoicePlan else {
+            if extractionStatus.isEmpty || extractionStatus.contains("Manual edits") {
+                extractionStatus = "Manual edits kept—use “Apply latest voice” to resync."
+            }
+            return
+        }
+
+        liveExtractionTask?.cancel()
+        liveExtractionGeneration += 1
+        let token = liveExtractionGeneration
+        let delay = liveExtractionDebounceNanoseconds
+
+        liveExtractionTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: delay)
+            guard let self else { return }
+            guard !Task.isCancelled else { return }
+            guard self.liveExtractionGeneration == token else { return }
+            await self.extractTasksFromTranscript(clean, isLive: true)
+        }
+    }
+
+    /// Runs extraction immediately (e.g. after stop recording) without waiting for debounce.
+    func flushLiveExtractionNow(transcript: String) async {
+        liveExtractionTask?.cancel()
+        liveExtractionTask = nil
+        let clean = normalized(transcript)
+        lastHeardTranscript = clean
+        guard canEditPlan, selectedInputMode == .voice else { return }
+        guard clean.count >= 2 else { return }
+        guard !userHasCustomizedVoicePlan else { return }
+        await extractTasksFromTranscript(clean, isLive: true)
+    }
+
+    func applyLatestVoiceResync() async {
+        guard canEditPlan else { return }
+        userHasCustomizedVoicePlan = false
+        liveExtractionTask?.cancel()
+        liveExtractionTask = nil
+        let fromLive = normalized(lastHeardTranscript)
+        let fromDraft = normalized(voiceDraft?.cleanedTranscript ?? "")
+        let text = fromLive.isEmpty ? fromDraft : fromLive
+        guard !text.isEmpty else {
+            extractionStatus = "No transcript to resync."
+            return
+        }
+        await extractTasksFromTranscript(text, isLive: true)
+    }
+
     func resetExtractionStatus() {
         extractionStatus = ""
     }
 
-    func extractTasksFromTranscript(_ transcript: String) async {
+    func extractTasksFromTranscript(_ transcript: String, isLive: Bool = false) async {
         guard canEditPlan else {
             extractionStatus = "Tasks are already locked for today."
+            return
+        }
+
+        if isLive, userHasCustomizedVoicePlan {
             return
         }
 
@@ -334,13 +443,27 @@ final class AppViewModel: ObservableObject {
 
         do {
             let draft = try await voiceDraftExtractor.extractDraft(from: cleanTranscript)
+            if isLive, normalized(lastHeardTranscript) != cleanTranscript {
+                // Transcript moved on while extraction ran (e.g. partials after flush).
+                return
+            }
             startVoiceDraftReview(from: draft)
-            extractionStatus = "Drafted tasks from \(voiceDraftExtractor.providerName). Review and lock."
+            lastLiveExtractionSource = cleanTranscript
+            extractionStatus = isLive
+                ? "Updated from voice (\(voiceDraftExtractor.providerName))."
+                : "Drafted tasks from \(voiceDraftExtractor.providerName). Review and lock."
         } catch {
-            voiceDraft = nil
-            plan = DailyPlan.empty(for: plan.focusDayID)
-            selectedInputMode = .text
-            extractionStatus = "\(error.localizedDescription) Type instead."
+            if isLive, normalized(lastHeardTranscript) != cleanTranscript {
+                return
+            }
+            if isLive {
+                extractionStatus = error.localizedDescription
+            } else {
+                voiceDraft = nil
+                plan = DailyPlan.empty(for: plan.focusDayID)
+                selectedInputMode = .text
+                extractionStatus = "\(error.localizedDescription) Type instead."
+            }
         }
 
         recomputeMomentum()
@@ -353,7 +476,7 @@ final class AppViewModel: ObservableObject {
         if plan.focusDayID != currentFocusDayID {
             handleFocusDayRollover(from: plan)
             plan = DailyPlan.empty(for: currentFocusDayID)
-            selectedInputMode = .text
+            selectedInputMode = .voice
             voiceDraft = nil
         }
 

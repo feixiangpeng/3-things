@@ -11,7 +11,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
         }
 
         let manager = SpeechCaptureManager(
-            transcriber: MockSpeechTranscriber(transcript: "unused"),
+            liveCapture: MockLiveSpeechCapture(partials: [], finalTranscript: "unused"),
             permissionGate: Denying()
         )
 
@@ -27,7 +27,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
 
     func testCancelClearsRecordingState() {
         let manager = SpeechCaptureManager(
-            transcriber: MockSpeechTranscriber(transcript: "hello"),
+            liveCapture: MockLiveSpeechCapture(partials: [], finalTranscript: "hello"),
             permissionGate: GrantingRecordingPermissionGate()
         )
 
@@ -35,5 +35,25 @@ final class SpeechCaptureManagerTests: XCTestCase {
         XCTAssertEqual(manager.phase, .idle)
         XCTAssertTrue(manager.latestTranscript.isEmpty)
         XCTAssertNil(manager.errorMessage)
+    }
+
+    func testMockLiveCaptureEmitsPartialsBeforeFinal() async throws {
+        let live = MockLiveSpeechCapture(
+            partials: ["Buy milk", "Buy milk and eggs"],
+            finalTranscript: "Buy milk and eggs for the party."
+        )
+        let manager = SpeechCaptureManager(
+            liveCapture: live,
+            permissionGate: GrantingRecordingPermissionGate()
+        )
+
+        manager.startRecording()
+        try await Task.sleep(nanoseconds: 400_000_000)
+        XCTAssertTrue(manager.latestTranscript.contains("Buy milk"))
+
+        manager.stopRecording()
+        try await Task.sleep(nanoseconds: 400_000_000)
+        XCTAssertEqual(manager.phase, .idle)
+        XCTAssertTrue(manager.latestTranscript.contains("party"))
     }
 }
