@@ -31,20 +31,26 @@ struct ExtractionReviewView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.plan.detectedMoreThanThree ? "Pick what matters" : "Review voice draft")
                 .font(.title3.bold())
+                .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : .primary)
 
             if viewModel.plan.detectedMoreThanThree {
                 Text("I heard more than 3 things. Pick what actually matters today.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(ThemePalette.overflow.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(ThemePalette.overflow.opacity(0.35), lineWidth: 1)
+                    )
             }
 
             if let cleanedTranscript = viewModel.voiceDraft?.cleanedTranscript,
                !cleanedTranscript.isEmpty {
                 Text(cleanedTranscript)
                     .font(.footnote)
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                    .themeCard(cornerRadius: 10, padding: 10)
             }
         }
     }
@@ -53,14 +59,14 @@ struct ExtractionReviewView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Selected")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
 
             ForEach(0..<3, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text("Thing \(index + 1)")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(ThemePalette.muted)
 
                         Spacer()
 
@@ -81,7 +87,7 @@ struct ExtractionReviewView: View {
                         }
                         .font(.caption)
                         .buttonStyle(.borderless)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(ThemePalette.muted)
                     }
 
                     TextField(
@@ -96,14 +102,14 @@ struct ExtractionReviewView: View {
                     .overlay {
                         if viewModel.duplicateTaskIndexes.contains(index) {
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(.red, lineWidth: 1)
+                                .stroke(ThemePalette.overflow, lineWidth: 1)
                         }
                     }
 
                     let count = viewModel.characterCount(at: index)
                     Text("\(count)/100")
                         .font(.caption2)
-                        .foregroundStyle(count > 70 ? .orange : .secondary)
+                        .foregroundStyle(count > 70 ? ThemePalette.warning : ThemePalette.muted)
                 }
             }
         }
@@ -114,7 +120,7 @@ struct ExtractionReviewView: View {
             if !viewModel.plan.extras.isEmpty {
                 Text("Extras")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : ThemePalette.muted)
             }
 
             ForEach(Array(viewModel.plan.extras.enumerated()), id: \.offset) { index, extra in
@@ -141,13 +147,12 @@ struct ExtractionReviewView: View {
                         Button("Discard") {
                             viewModel.discardExtraCandidate(at: index)
                         }
-                        .foregroundStyle(.red)
+                        .foregroundStyle(ThemePalette.overflow)
                     }
                     .font(.caption)
                     .buttonStyle(.borderless)
                 }
-                .padding(10)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                .themeCard(cornerRadius: 10, padding: 10)
             }
         }
     }
@@ -157,7 +162,7 @@ struct ExtractionReviewView: View {
         if let message = viewModel.taskValidationMessage {
             Text(message)
                 .font(.footnote.weight(.semibold))
-                .foregroundStyle(.red)
+                .foregroundStyle(ThemePalette.overflow)
         }
     }
 

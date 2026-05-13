@@ -37,9 +37,7 @@ struct VoiceCaptureView: View {
             if !speechManager.latestTranscript.isEmpty, speechManager.phase == .idle {
                 Text(speechManager.latestTranscript)
                     .font(.footnote)
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                    .themeCard(cornerRadius: 10, padding: 10)
             }
 
             Button {
@@ -71,7 +69,7 @@ struct VoiceCaptureView: View {
             if !viewModel.extractionStatus.isEmpty {
                 Text(viewModel.extractionStatus)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
             }
 
 #if DEBUG
@@ -86,9 +84,7 @@ struct VoiceCaptureView: View {
 
                     Text(viewModel.selectedVoiceFixture.transcript)
                         .font(.footnote)
-                        .padding(10)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                        .themeCard(cornerRadius: 10, padding: 10)
 
                     Button("Generate draft from fixture") {
                         viewModel.generateMockVoiceDraft()
@@ -107,20 +103,20 @@ struct VoiceCaptureView: View {
             if speechManager.errorMessage == nil, speechManager.latestTranscript.isEmpty {
                 Text("Tap Record, speak your 1–3 things, then Stop and Extract.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
             } else if let error = speechManager.errorMessage {
                 Text(error)
                     .font(.footnote)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(ThemePalette.overflow)
             } else {
                 Text("Transcript ready — tap Extract tasks.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
             }
         case .requestingPermission:
             Text("Requesting microphone & speech access…")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
         case .recording:
             Text("Recording…")
                 .font(.footnote.weight(.semibold))
@@ -130,12 +126,12 @@ struct VoiceCaptureView: View {
                 ProgressView()
                 Text("Transcribing on device…")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
             }
         case .failed(let message):
             Text(message)
                 .font(.footnote)
-                .foregroundStyle(.red)
+                .foregroundStyle(ThemePalette.overflow)
         }
     }
 }

@@ -3,13 +3,19 @@ import Foundation
 @MainActor
 final class AppViewModel: ObservableObject {
     @Published var plan: DailyPlan
-    @Published var selectedInputMode: InputMode = .text
+    @Published var selectedInputMode: InputMode = .voice
     @Published var pendingFinalizationDayID: String?
     @Published var momentum7: Int = 0
     @Published var extractionStatus: String = ""
     @Published var isExtracting: Bool = false
     @Published var voiceDraft: VoiceExtractionDraft?
     @Published var selectedVoiceFixtureID: String = MockVoiceDraftProvider.fixtures[2].id
+    /// Latest transcript text from the live voice capture path (for resync and debugging).
+    @Published private(set) var lastHeardTranscript: String = ""
+    /// True after the user edits tasks/extras while a voice draft exists; live auto-extraction pauses until a new recording or explicit resync.
+    @Published private(set) var userHasCustomizedVoicePlan: Bool = false
+    /// True while the speech capture pipeline is actively recording.
+    @Published private(set) var isVoiceRecordingActive: Bool = false
 
     private struct StoredState: Codable {
         var plan: DailyPlan?

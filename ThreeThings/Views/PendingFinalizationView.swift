@@ -26,9 +26,11 @@ struct PendingFinalizationView: View {
             if let dayID = viewModel.pendingFinalizationDayID {
                 Text("Pending day: \(dayID)")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(ThemePalette.muted)
             }
         }
         .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(ThemePalette.background)
     }
 }

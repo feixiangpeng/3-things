@@ -10,7 +10,7 @@ struct LockedPlanView: View {
 
             Text("Locked until tomorrow at 2:00 AM.")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
 
             ForEach(viewModel.plan.tasks) { task in
                 Button {
@@ -18,27 +18,26 @@ struct LockedPlanView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(task.isCompleted ? .green : .secondary)
+                            .foregroundStyle(task.isCompleted ? ThemePalette.success : ThemePalette.muted)
 
                         Text(task.text.isEmpty ? "Untitled task" : task.text)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .strikethrough(task.isCompleted)
                             .foregroundStyle(.primary)
                     }
-                    .padding(12)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .themeCard()
                 }
                 .buttonStyle(.plain)
             }
 
             Text("\(viewModel.completedTaskCount)/\(viewModel.lockedTaskCount) complete")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
 
             if viewModel.completedTaskCount == viewModel.lockedTaskCount {
                 Text("All locked tasks done.")
                     .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(ThemePalette.success)
             }
         }
     }

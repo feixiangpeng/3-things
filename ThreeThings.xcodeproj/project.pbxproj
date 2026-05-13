@@ -31,6 +31,17 @@
 		A00000000000000000000065 /* FoundationModelsVoiceDraftExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */; };
 		A00000000000000000000066 /* SpeechCaptureManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005C /* SpeechCaptureManagerTests.swift */; };
 		A00000000000000000000067 /* VoiceDraftPostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */; };
+		A00000000000000000000080 /* VoiceExtractionEvalModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000006E /* VoiceExtractionEvalModels.swift */; };
+		A00000000000000000000088 /* VoiceExtractionEvalLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000075 /* VoiceExtractionEvalLoader.swift */; };
+		A00000000000000000000081 /* VoiceExtractionEvalScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000006F /* VoiceExtractionEvalScorer.swift */; };
+		A00000000000000000000082 /* VoiceExtractionEvalRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000070 /* VoiceExtractionEvalRunner.swift */; };
+		A00000000000000000000083 /* VoiceExtractionEvalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000071 /* VoiceExtractionEvalView.swift */; };
+		A00000000000000000000084 /* VoiceExtractionEvalFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */; };
+		A00000000000000000000085 /* VoiceExtractionEvalScorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */; };
+		A00000000000000000000086 /* voice_extraction_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000074 /* voice_extraction_cases.json */; };
+		A00000000000000000000087 /* voice_extraction_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000074 /* voice_extraction_cases.json */; };
+		A00000000000000000000094 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000093 /* ThemePalette.swift */; };
+		A00000000000000000000098 /* LiveSpeechCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000097 /* LiveSpeechCapture.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +82,16 @@
 		A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsVoiceDraftExtractor.swift; sourceTree = "<group>"; };
 		A0000000000000000000005C /* SpeechCaptureManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCaptureManagerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraftPostProcessorTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000006E /* VoiceExtractionEvalModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalModels.swift; sourceTree = "<group>"; };
+		A00000000000000000000075 /* VoiceExtractionEvalLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalLoader.swift; sourceTree = "<group>"; };
+		A0000000000000000000006F /* VoiceExtractionEvalScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalScorer.swift; sourceTree = "<group>"; };
+		A00000000000000000000070 /* VoiceExtractionEvalRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalRunner.swift; sourceTree = "<group>"; };
+		A00000000000000000000071 /* VoiceExtractionEvalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalView.swift; sourceTree = "<group>"; };
+		A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalFixtureTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceExtractionEvalScorerTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000074 /* voice_extraction_cases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = voice_extraction_cases.json; sourceTree = "<group>"; };
+		A00000000000000000000093 /* ThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePalette.swift; sourceTree = "<group>"; };
+		A00000000000000000000097 /* LiveSpeechCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSpeechCapture.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +139,8 @@
 				A00000000000000000000010 /* Models */,
 				A00000000000000000000011 /* Services */,
 				A00000000000000000000016 /* Utilities */,
+				A00000000000000000000099 /* Theme */,
+				A0000000000000000000007E /* Fixtures */,
 				A00000000000000000000017 /* Info.plist */,
 			);
 			path = ThreeThings;
@@ -146,11 +169,31 @@
 		A00000000000000000000012 /* Extraction */ = {
 			isa = PBXGroup;
 			children = (
+				A0000000000000000000007D /* Eval */,
 				A0000000000000000000005A /* VoiceDraftExtracting.swift */,
 				A0000000000000000000005B /* FoundationModelsVoiceDraftExtractor.swift */,
 				A00000000000000000000054 /* MockVoiceDraftProvider.swift */,
 			);
 			path = Extraction;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000007D /* Eval */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000006E /* VoiceExtractionEvalModels.swift */,
+				A00000000000000000000075 /* VoiceExtractionEvalLoader.swift */,
+				A0000000000000000000006F /* VoiceExtractionEvalScorer.swift */,
+				A00000000000000000000070 /* VoiceExtractionEvalRunner.swift */,
+			);
+			path = Eval;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000007E /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000074 /* voice_extraction_cases.json */,
+			);
+			path = Fixtures;
 			sourceTree = "<group>";
 		};
 		A00000000000000000000013 /* Speech */ = {
@@ -161,6 +204,7 @@
 				A00000000000000000000058 /* AppleOnDeviceSpeechTranscriber.swift */,
 				A00000000000000000000059 /* RecordingPermissionGate.swift */,
 				A00000000000000000000022 /* SpeechCaptureManager.swift */,
+				A00000000000000000000097 /* LiveSpeechCapture.swift */,
 			);
 			path = Speech;
 			sourceTree = "<group>";
@@ -176,6 +220,7 @@
 		A00000000000000000000015 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A0000000000000000000007F /* Debug */,
 				A00000000000000000000024 /* RootView.swift */,
 				A00000000000000000000025 /* TextCaptureView.swift */,
 				A00000000000000000000026 /* LockedPlanView.swift */,
@@ -186,6 +231,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		A0000000000000000000007F /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000071 /* VoiceExtractionEvalView.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 		A00000000000000000000016 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,12 +247,22 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		A00000000000000000000099 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000093 /* ThemePalette.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
 		A00000000000000000000045 /* ThreeThingsTests */ = {
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000044 /* AppViewModelTests.swift */,
 				A0000000000000000000005C /* SpeechCaptureManagerTests.swift */,
 				A0000000000000000000005D /* VoiceDraftPostProcessorTests.swift */,
+				A00000000000000000000072 /* VoiceExtractionEvalFixtureTests.swift */,
+				A00000000000000000000073 /* VoiceExtractionEvalScorerTests.swift */,
 			);
 			path = ThreeThingsTests;
 			sourceTree = "<group>";
@@ -284,6 +347,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000086 /* voice_extraction_cases.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +355,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000087 /* voice_extraction_cases.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +373,7 @@
 				A00000000000000000000050 /* VoiceExtractionDraft.swift in Sources */,
 				A00000000000000000000051 /* MockVoiceDraftProvider.swift in Sources */,
 				A0000000000000000000003A /* SpeechCaptureManager.swift in Sources */,
+				A00000000000000000000098 /* LiveSpeechCapture.swift in Sources */,
 				A00000000000000000000060 /* SpeechTranscribing.swift in Sources */,
 				A00000000000000000000061 /* MockSpeechTranscriber.swift in Sources */,
 				A00000000000000000000062 /* AppleOnDeviceSpeechTranscriber.swift in Sources */,
@@ -322,6 +388,12 @@
 				A00000000000000000000052 /* ExtractionReviewView.swift in Sources */,
 				A00000000000000000000040 /* PendingFinalizationView.swift in Sources */,
 				A00000000000000000000041 /* FocusDay.swift in Sources */,
+				A00000000000000000000094 /* ThemePalette.swift in Sources */,
+				A00000000000000000000080 /* VoiceExtractionEvalModels.swift in Sources */,
+				A00000000000000000000088 /* VoiceExtractionEvalLoader.swift in Sources */,
+				A00000000000000000000081 /* VoiceExtractionEvalScorer.swift in Sources */,
+				A00000000000000000000082 /* VoiceExtractionEvalRunner.swift in Sources */,
+				A00000000000000000000083 /* VoiceExtractionEvalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,6 +404,8 @@
 				A00000000000000000000042 /* AppViewModelTests.swift in Sources */,
 				A00000000000000000000066 /* SpeechCaptureManagerTests.swift in Sources */,
 				A00000000000000000000067 /* VoiceDraftPostProcessorTests.swift in Sources */,
+				A00000000000000000000084 /* VoiceExtractionEvalFixtureTests.swift in Sources */,
+				A00000000000000000000085 /* VoiceExtractionEvalScorerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

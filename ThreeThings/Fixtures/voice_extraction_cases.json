@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "literal_three_store_park_food",
+      "category": "literal",
+      "transcriptVariants": [
+        "Go to a store, go to the park, and eat food.",
+        "Um, I need to go to a store, uh, go to the park, and eat food.",
+        "So today I guess the things are go to a store, go to the park, and eat food.",
+        "Go to the store. Go to the park. Eat food.",
+        "I just need to go to a store and then go to the park and then eat food."
+      ],
+      "expectedSelectedMeanings": [
+        "go to a store",
+        "go to the park",
+        "eat food"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "buy groceries",
+        "enjoy the park",
+        "prepare dinner",
+        "organize errands"
+      ],
+      "notes": "Literal three tasks; no invention."
+    },
+    {
+      "id": "overflow_four_clean",
+      "category": "overflow",
+      "transcriptVariants": [
+        "Email Sam, pay rent, buy milk, and call mom.",
+        "Um, email Sam, pay rent, buy milk, call mom.",
+        "Today I need to email Sam. Pay rent. Buy milk. Call mom.",
+        "The list is email Sam, pay rent, buy milk, and call my mom.",
+        "Okay, things: email Sam, pay rent, buy milk, call mom."
+      ],
+      "expectedSelectedMeanings": [
+        "email Sam",
+        "pay rent",
+        "buy milk"
+      ],
+      "expectedExtraMeanings": [
+        "call mom"
+      ],
+      "expectedOverflow": true,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "grocery shopping beyond milk",
+        "family planning",
+        "financial planning"
+      ],
+      "notes": "Four distinct tasks; fourth in extras; overflow true."
+    },
+    {
+      "id": "correction_never_mind_single",
+      "category": "correction",
+      "transcriptVariants": [
+        "Go to the park, wait never mind, go to the store.",
+        "Uh go to the park. Actually no, scratch that, go to the store.",
+        "I was going to say go to the park, but never mind. Go to the store.",
+        "Go to park, no, go to store.",
+        "Let's do go to the park. Wait, cancel that. Go to the store."
+      ],
+      "expectedSelectedMeanings": [
+        "go to the store"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "go to the park",
+        "buy groceries"
+      ],
+      "notes": "Canceled park; final intent is store only."
+    },
+    {
+      "id": "no_task_testing",
+      "category": "no_task",
+      "transcriptVariants": [
+        "Hello? Testing, testing.",
+        "Um, hello, is this working?",
+        "Testing one two three.",
+        "Uh, I don't know, just testing the mic.",
+        "This is a test. Hello hello."
+      ],
+      "expectedSelectedMeanings": [],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": true,
+      "forbiddenMeanings": [
+        "prepare for meeting",
+        "review emails",
+        "call client",
+        "organize workspace",
+        "set reminders"
+      ],
+      "notes": "Mic test / no actionable tasks; extractor should surface empty output (throw emptyModelOutput)."
+    },
+    {
+      "id": "inference_store_only",
+      "category": "inference_trap",
+      "transcriptVariants": [
+        "Go to the store.",
+        "Uh, go to a store.",
+        "I need to go to the store today.",
+        "Put go to the store.",
+        "The only thing is go to the store."
+      ],
+      "expectedSelectedMeanings": [
+        "go to the store"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "buy groceries",
+        "buy milk",
+        "run errands"
+      ],
+      "notes": "Do not infer shopping list from store alone."
+    },
+    {
+      "id": "duplicate_email_sam",
+      "category": "duplicate",
+      "transcriptVariants": [
+        "Email Sam, send Sam an email, and pay rent.",
+        "Uh email Sam, like send him the email, and pay rent.",
+        "I need to email Sam, email Sam about the thing, and pay rent.",
+        "Email Sam. Also send Sam the email. And pay rent.",
+        "The tasks are email Sam and pay rent. I said email Sam twice."
+      ],
+      "expectedSelectedMeanings": [
+        "email Sam",
+        "pay rent"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "follow up with Sam as a separate task",
+        "write email draft as separate from send email"
+      ],
+      "notes": "Duplicate phrasing should collapse to one email-Sam task."
+    },
+    {
+      "id": "ramble_two_clear_tasks",
+      "category": "ramble",
+      "transcriptVariants": [
+        "I have a lot going on, um, but really today I need to finish the deck and book the dentist.",
+        "So I'm kind of scattered. The actual things are finish the deck and book dentist.",
+        "Uh there's too much, but today: finish deck, book dentist.",
+        "I keep thinking about work and health. I need to finish the deck and book the dentist appointment.",
+        "Okay, don't overthink it, finish deck and book dentist."
+      ],
+      "expectedSelectedMeanings": [
+        "finish the deck",
+        "book dentist"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "manage health",
+        "plan work",
+        "reduce stress"
+      ],
+      "notes": "Filler ignored; two explicit tasks remain."
+    }
+  ]
+}

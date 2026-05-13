@@ -14,7 +14,7 @@ struct TextCaptureView: View {
                     HStack {
                         Text("Thing \(index + 1)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(ThemePalette.muted)
 
                         Spacer()
 
@@ -35,7 +35,7 @@ struct TextCaptureView: View {
                         }
                         .font(.caption)
                         .buttonStyle(.borderless)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(ThemePalette.muted)
                     }
 
                     TextField(
@@ -50,21 +50,21 @@ struct TextCaptureView: View {
                     .overlay {
                         if viewModel.duplicateTaskIndexes.contains(index) {
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(.red, lineWidth: 1)
+                                .stroke(ThemePalette.overflow, lineWidth: 1)
                         }
                     }
 
                     let count = viewModel.characterCount(at: index)
                     Text("\(count)/100")
                         .font(.caption2)
-                        .foregroundStyle(count > 70 ? .orange : .secondary)
+                        .foregroundStyle(count > 70 ? ThemePalette.warning : ThemePalette.muted)
                 }
             }
 
             if let message = viewModel.taskValidationMessage {
                 Text(message)
                     .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(ThemePalette.overflow)
             }
 
             Button("Lock Today's Things") {
@@ -75,7 +75,7 @@ struct TextCaptureView: View {
 
             Text("Lock when at least 1 task is ready (up to 3). Tasks lock until the next focus day at 2:00 AM local time.")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
         }
         .confirmationDialog(
             "Lock today's things?",

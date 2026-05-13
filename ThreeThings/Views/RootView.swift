@@ -17,6 +17,7 @@ struct RootView: View {
                             }
                         }
                         .pickerStyle(.segmented)
+                        .tint(ThemePalette.primary)
 
                         if viewModel.selectedInputMode == .text {
                             TextCaptureView(viewModel: viewModel)
@@ -31,7 +32,20 @@ struct RootView: View {
                 }
                 .padding(20)
             }
+            .scrollContentBackground(.hidden)
+            .background(ThemePalette.background)
             .navigationTitle("3-things")
+            #if DEBUG
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink("Eval") {
+                        VoiceExtractionEvalView()
+                    }
+                    .font(.caption)
+                }
+            }
+            #endif
+            .toolbarBackground(ThemePalette.background, for: .navigationBar)
         }
         .sheet(
             isPresented: Binding(
@@ -66,7 +80,7 @@ struct RootView: View {
                 .font(.title2.bold())
             Text(viewModel.progressText)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemePalette.muted)
         }
     }
 }
