@@ -25,12 +25,12 @@ This project targets **iOS 26+** so it can use:
 3. Confirm **partial text updates** while still recording.
 4. Tap **Stop**; confirm the **final transcript** remains (not blank) and matches what you said closely enough to proceed.
 5. Confirm the app moves into **live extraction / review** (debounced path from `AppViewModel.updateVoiceTranscriptSnapshot`) without needing **Type instead** unless the model is unavailable for your locale.
-6. **Waveform**: while recording, the bar waveform should stay **mostly flat in silence** and **grow when you speak**; after **Stop** or **Cancel**, it should **clear** (no stale high bars during “Finishing transcript…”).
+6. **Level meter**: while recording, the fixed bar meter should stay **mostly flat in silence** and **pulse up when you speak** (bars do not scroll sideways—only height reflects level); after **Stop** or **Cancel**, it should **reset** (no stale high bars during “Finishing transcript…”).
 
 ## Tests
 
 - Unit tests inject `HeuristicVoiceDraftExtractor()` into `AppViewModel` for stable extraction.
-- `SpeechCaptureManagerTests` covers permission denial, cancel/reset, scripted partial→final flow, **empty `stop()` merged with last partial** (`returnEmptyStringFromStop`), **`stop()` throws → failed phase**, **no speech detected** when both partials and final are empty, and **waveform `audioLevelSamples`** (mock levels, cap at `maxWaveformSamples`, reset on cancel / after stop).
+- `SpeechCaptureManagerTests` covers permission denial, cancel/reset, scripted partial→final flow, **empty `stop()` merged with last partial** (`returnEmptyStringFromStop`), **`stop()` throws → failed phase**, **no speech detected** when both partials and final are empty, and **`currentAudioLevel`** (mock-driven meter updates while recording, reset on cancel / after stop).
 
 ## `xcodebuild` example
 

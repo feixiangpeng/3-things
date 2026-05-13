@@ -23,7 +23,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
             return
         }
         XCTAssertTrue(message.localizedCaseInsensitiveContains("microphone"))
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
     func testCancelClearsRecordingState() {
@@ -36,7 +36,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
         XCTAssertEqual(manager.phase, .idle)
         XCTAssertTrue(manager.latestTranscript.isEmpty)
         XCTAssertNil(manager.errorMessage)
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
     func testMockLiveCaptureEmitsPartialsBeforeFinal() async throws {
@@ -57,7 +57,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
         try await Task.sleep(nanoseconds: 400_000_000)
         XCTAssertEqual(manager.phase, .idle)
         XCTAssertTrue(manager.latestTranscript.contains("party"))
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty, "Waveform samples should clear after a successful stop")
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001, "Audio level should clear after a successful stop")
     }
 
     /// When `SFSpeechRecognizer` returns an empty final string but partials were shown, keep the last partial (Beli stop/endAudio race mitigation path).
@@ -80,7 +80,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
         try await Task.sleep(nanoseconds: 400_000_000)
         XCTAssertEqual(manager.phase, .idle)
         XCTAssertEqual(manager.latestTranscript, "One two three")
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
     func testStopThrowsMapsToFailedPhase() async throws {
@@ -105,7 +105,7 @@ final class SpeechCaptureManagerTests: XCTestCase {
         }
         XCTAssertTrue(message.localizedCaseInsensitiveContains("stop pipeline"))
         XCTAssertTrue(manager.latestTranscript.isEmpty)
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
     func testNoSpeechDetectedWhenStopAndPartialsEmpty() async throws {
@@ -125,10 +125,10 @@ final class SpeechCaptureManagerTests: XCTestCase {
             return
         }
         XCTAssertTrue(message.localizedCaseInsensitiveContains("no speech"))
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
-    func testAudioLevelSamplesAccumulateDuringMockRecording() async throws {
+    func testCurrentAudioLevelUpdatesDuringMockRecording() async throws {
         let live = MockLiveSpeechCapture(partials: ["Hi"], finalTranscript: "Hi there.")
         let manager = SpeechCaptureManager(
             liveCapture: live,
@@ -137,23 +137,10 @@ final class SpeechCaptureManagerTests: XCTestCase {
 
         manager.startRecording()
         try await Task.sleep(nanoseconds: 350_000_000)
-        XCTAssertFalse(manager.audioLevelSamples.isEmpty, "Mock should emit waveform levels while recording")
+        XCTAssertGreaterThan(manager.currentAudioLevel, 0.001, "Mock should drive non-zero meter level while recording")
     }
 
-    func testAudioLevelSamplesCappedAtMax() async throws {
-        let pattern = (0..<80).map { _ in 0.99 }
-        let live = MockLiveSpeechCapture(partials: ["x"], finalTranscript: "x", levelPattern: pattern)
-        let manager = SpeechCaptureManager(
-            liveCapture: live,
-            permissionGate: GrantingRecordingPermissionGate()
-        )
-
-        manager.startRecording()
-        try await Task.sleep(nanoseconds: 3_200_000_000)
-        XCTAssertLessThanOrEqual(manager.audioLevelSamples.count, SpeechCaptureManager.maxWaveformSamples)
-    }
-
-    func testAudioLevelSamplesClearedWhenCancelDuringRecording() async throws {
+    func testCurrentAudioLevelClearedWhenCancelDuringRecording() async throws {
         let live = MockLiveSpeechCapture(partials: ["a"], finalTranscript: "a")
         let manager = SpeechCaptureManager(
             liveCapture: live,
@@ -162,9 +149,9 @@ final class SpeechCaptureManagerTests: XCTestCase {
 
         manager.startRecording()
         try await Task.sleep(nanoseconds: 250_000_000)
-        XCTAssertFalse(manager.audioLevelSamples.isEmpty)
+        XCTAssertGreaterThan(manager.currentAudioLevel, 0.001)
 
         manager.cancelRecording()
-        XCTAssertTrue(manager.audioLevelSamples.isEmpty)
+        XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 }

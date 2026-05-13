@@ -17,7 +17,7 @@ struct VoiceCaptureView: View {
             statusView
 
             VoiceWaveformView(
-                samples: speechManager.audioLevelSamples,
+                level: speechManager.currentAudioLevel,
                 isRecording: speechManager.phase == .recording,
                 compact: compact
             )

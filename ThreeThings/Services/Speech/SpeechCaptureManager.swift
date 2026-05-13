@@ -13,13 +13,12 @@ final class SpeechCaptureManager: ObservableObject {
         case failed(String)
     }
 
-    /// Rolling normalized audio levels (0…1) for the waveform; oldest on the left.
-    static let maxWaveformSamples = 50
+    /// Smoothed normalized mic level (0…1) for the static level meter UI.
+    @Published private(set) var currentAudioLevel: CGFloat = 0
 
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var latestTranscript: String = ""
     @Published private(set) var errorMessage: String?
-    @Published private(set) var audioLevelSamples: [CGFloat] = []
 
     #if DEBUG
     /// Latest line from the live speech pipeline (device `SFSpeechLiveCapture` only). Shown in DEBUG UI.
@@ -203,16 +202,11 @@ final class SpeechCaptureManager: ObservableObject {
         }
         #endif
 
-        var next = audioLevelSamples
-        next.append(smoothedAudioLevel)
-        if next.count > Self.maxWaveformSamples {
-            next.removeFirst(next.count - Self.maxWaveformSamples)
-        }
-        audioLevelSamples = next
+        currentAudioLevel = smoothedAudioLevel
     }
 
     private func clearAudioLevels() {
-        audioLevelSamples = []
+        currentAudioLevel = 0
         smoothedAudioLevel = 0
         audioBufferLevelCount = 0
     }
