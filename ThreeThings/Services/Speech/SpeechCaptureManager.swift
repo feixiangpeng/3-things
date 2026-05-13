@@ -1,5 +1,6 @@
 import AVFoundation
 import Combine
+import CoreGraphics
 import Foundation
 
 @MainActor
@@ -12,9 +13,13 @@ final class SpeechCaptureManager: ObservableObject {
         case failed(String)
     }
 
+    /// Rolling normalized audio levels (0…1) for the waveform; oldest on the left.
+    static let maxWaveformSamples = 50
+
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var latestTranscript: String = ""
     @Published private(set) var errorMessage: String?
+    @Published private(set) var audioLevelSamples: [CGFloat] = []
 
     #if DEBUG
     /// Latest line from the live speech pipeline (device `SFSpeechLiveCapture` only). Shown in DEBUG UI.
@@ -25,6 +30,8 @@ final class SpeechCaptureManager: ObservableObject {
     private let liveCapture: LiveSpeechCapturing
     private let permissionGate: any RecordingPermissionGating
     private let locale: Locale
+    private var smoothedAudioLevel: CGFloat = 0
+    private var audioBufferLevelCount = 0
 
     init(
         liveCapture: LiveSpeechCapturing? = nil,
@@ -82,6 +89,7 @@ final class SpeechCaptureManager: ObservableObject {
 
         errorMessage = nil
         latestTranscript = ""
+        clearAudioLevels()
         #if DEBUG
         speechDiagnosticLine = ""
         #endif
@@ -96,6 +104,7 @@ final class SpeechCaptureManager: ObservableObject {
         case .denied(let message):
             errorMessage = message
             phase = .failed(message)
+            clearAudioLevels()
             return
         case .granted:
             break
@@ -103,16 +112,22 @@ final class SpeechCaptureManager: ObservableObject {
 
         do {
             try configureAudioSession()
-            try await liveCapture.start(locale: locale) { [weak self] text in
-                Task { @MainActor in
+            clearAudioLevels()
+            try await liveCapture.start(
+                locale: locale,
+                onPartial: { [weak self] text in
                     self?.latestTranscript = text
+                },
+                onLevel: { [weak self] level in
+                    self?.appendAudioLevel(level)
                 }
-            }
+            )
             phase = .recording
         } catch {
             let message = error.localizedDescription
             errorMessage = message
             phase = .failed(message)
+            clearAudioLevels()
             try? await deactivateAudioSession()
         }
     }
@@ -125,6 +140,7 @@ final class SpeechCaptureManager: ObservableObject {
         guard phase == .recording else { return }
 
         phase = .transcribing
+        clearAudioLevels()
 
         do {
             let finalFromStop = try await liveCapture.stop()
@@ -137,17 +153,20 @@ final class SpeechCaptureManager: ObservableObject {
                 errorMessage = message
                 latestTranscript = ""
                 phase = .failed(message)
+                clearAudioLevels()
                 return
             }
 
             latestTranscript = trimmed
             errorMessage = nil
             phase = .idle
+            clearAudioLevels()
         } catch {
             let message = error.localizedDescription
             errorMessage = message
             latestTranscript = ""
             phase = .failed(message)
+            clearAudioLevels()
         }
     }
 
@@ -155,6 +174,7 @@ final class SpeechCaptureManager: ObservableObject {
         liveCapture.cancel()
         errorMessage = nil
         latestTranscript = ""
+        clearAudioLevels()
         #if DEBUG
         speechDiagnosticLine = ""
         #endif
@@ -163,6 +183,38 @@ final class SpeechCaptureManager: ObservableObject {
         Task {
             try? await deactivateAudioSession()
         }
+    }
+
+    private func appendAudioLevel(_ level: Double) {
+        guard phase == .recording || phase == .requestingPermission else { return }
+        let raw = CGFloat(min(1, max(0, level)))
+        let attack: CGFloat = 0.38
+        let release: CGFloat = 0.18
+        if raw > smoothedAudioLevel {
+            smoothedAudioLevel = smoothedAudioLevel * attack + raw * (1 - attack)
+        } else {
+            smoothedAudioLevel = smoothedAudioLevel * (1 - release) + raw * release
+        }
+
+        audioBufferLevelCount += 1
+        #if DEBUG
+        if audioBufferLevelCount == 1 || audioBufferLevelCount % 200 == 0 {
+            speechDiagnosticLine = "audio buffers appended: \(audioBufferLevelCount)"
+        }
+        #endif
+
+        var next = audioLevelSamples
+        next.append(smoothedAudioLevel)
+        if next.count > Self.maxWaveformSamples {
+            next.removeFirst(next.count - Self.maxWaveformSamples)
+        }
+        audioLevelSamples = next
+    }
+
+    private func clearAudioLevels() {
+        audioLevelSamples = []
+        smoothedAudioLevel = 0
+        audioBufferLevelCount = 0
     }
 
     private func configureAudioSession() throws {

@@ -7,6 +7,7 @@ struct LockedPlanView: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Locked for today")
                 .font(.title3.bold())
+                .foregroundStyle(ThemePalette.primary)
 
             Text("Locked until tomorrow at 2:00 AM.")
                 .font(.footnote)
@@ -23,7 +24,7 @@ struct LockedPlanView: View {
                         Text(task.text.isEmpty ? "Untitled task" : task.text)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .strikethrough(task.isCompleted)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(Color.primary)
                     }
                     .themeCard()
                 }

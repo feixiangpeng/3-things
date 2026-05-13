@@ -7,9 +7,11 @@ struct PendingFinalizationView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Yesterday check-in")
                 .font(.title3.bold())
+                .foregroundStyle(ThemePalette.primary)
 
             Text("Before setting today, did you complete yesterday's locked things?")
                 .font(.body)
+                .foregroundStyle(Color.primary)
 
             HStack(spacing: 12) {
                 Button("Done") {
@@ -32,5 +34,6 @@ struct PendingFinalizationView: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(ThemePalette.background)
+        .preferredColorScheme(.light)
     }
 }

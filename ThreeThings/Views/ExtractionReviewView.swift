@@ -45,9 +45,9 @@ struct ExtractionReviewView: View {
                     .foregroundStyle(ThemePalette.muted)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(ThemePalette.overflow.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                    .background(ThemePalette.overflow.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .stroke(ThemePalette.overflow.opacity(0.35), lineWidth: 1)
                     )
             }
@@ -56,7 +56,8 @@ struct ExtractionReviewView: View {
                !cleanedTranscript.isEmpty {
                 Text(cleanedTranscript)
                     .font(.footnote)
-                    .themeCard(cornerRadius: 10, padding: 10)
+                    .foregroundStyle(Color.primary)
+                    .themeCard(cornerRadius: 12, padding: 10)
             }
         }
     }
@@ -66,6 +67,8 @@ struct ExtractionReviewView: View {
             Text("Selected")
                 .font(.caption)
                 .foregroundStyle(ThemePalette.muted)
+                .textCase(.uppercase)
+                .tracking(0.5)
 
             ForEach(0..<3, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 6) {
@@ -104,13 +107,9 @@ struct ExtractionReviewView: View {
                         ),
                         axis: .vertical
                     )
-                    .textFieldStyle(.roundedBorder)
-                    .overlay {
-                        if viewModel.duplicateTaskIndexes.contains(index) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(ThemePalette.overflow, lineWidth: 1)
-                        }
-                    }
+                    .textFieldStyle(.plain)
+                    .lineLimit(3...8)
+                    .themeInputField(cornerRadius: 12, isInvalid: viewModel.duplicateTaskIndexes.contains(index))
 
                     let count = viewModel.characterCount(at: index)
                     Text("\(count)/100")
@@ -127,6 +126,8 @@ struct ExtractionReviewView: View {
                 Text("Extras")
                     .font(.caption)
                     .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : ThemePalette.muted)
+                    .textCase(.uppercase)
+                    .tracking(0.5)
             }
 
             ForEach(Array(viewModel.plan.extras.enumerated()), id: \.offset) { index, extra in
@@ -139,7 +140,9 @@ struct ExtractionReviewView: View {
                         ),
                         axis: .vertical
                     )
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .lineLimit(2...6)
+                    .themeInputField(cornerRadius: 12)
 
                     HStack {
                         Menu("Replace selected") {
@@ -149,6 +152,7 @@ struct ExtractionReviewView: View {
                                 }
                             }
                         }
+                        .foregroundStyle(ThemePalette.primary)
 
                         Button("Discard") {
                             viewModel.discardExtraCandidate(at: index)
@@ -158,7 +162,13 @@ struct ExtractionReviewView: View {
                     .font(.caption)
                     .buttonStyle(.borderless)
                 }
-                .themeCard(cornerRadius: 10, padding: 10)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(ThemePalette.inputFill.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(ThemePalette.border.opacity(0.85), lineWidth: 1)
+                )
             }
         }
     }

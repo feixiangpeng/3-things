@@ -8,6 +8,7 @@ struct RootView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
+                    brandHeader
                     header
 
                     if viewModel.canEditPlan {
@@ -18,13 +19,17 @@ struct RootView: View {
                         }
                     } else {
                         LockedPlanView(viewModel: viewModel)
+                            .themeSectionCard()
                     }
                 }
                 .padding(20)
             }
             .scrollContentBackground(.hidden)
-            .background(ThemePalette.background)
-            .navigationTitle("3-things")
+            .themePageBackground()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(ThemePalette.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.light, for: .navigationBar)
             #if DEBUG
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -32,11 +37,13 @@ struct RootView: View {
                         VoiceExtractionEvalView()
                     }
                     .font(.caption)
+                    .foregroundStyle(ThemePalette.primary)
                 }
             }
             #endif
-            .toolbarBackground(ThemePalette.background, for: .navigationBar)
         }
+        .preferredColorScheme(.light)
+        .tint(ThemePalette.primary)
         .sheet(
             isPresented: Binding(
                 get: { viewModel.pendingFinalizationDayID != nil },
@@ -49,6 +56,12 @@ struct RootView: View {
         }
     }
 
+    private var brandHeader: some View {
+        Text("3-things")
+            .font(.title2.weight(.semibold))
+            .foregroundStyle(ThemePalette.primary)
+    }
+
     private var textModeStack: some View {
         VStack(alignment: .leading, spacing: 14) {
             Button {
@@ -59,6 +72,7 @@ struct RootView: View {
             .buttonStyle(ThemeSecondaryOutlineButtonStyle())
 
             TextCaptureView(viewModel: viewModel)
+                .themeSectionCard()
         }
     }
 
@@ -72,6 +86,7 @@ struct RootView: View {
 
             if viewModel.voiceDraft != nil {
                 ExtractionReviewView(viewModel: viewModel)
+                    .themeSectionCard()
             }
         }
     }
@@ -79,9 +94,13 @@ struct RootView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Today")
-                .font(.headline)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(ThemePalette.muted)
+                .textCase(.uppercase)
+                .tracking(0.6)
             Text("Momentum: \(viewModel.momentum7)/7")
                 .font(.title2.bold())
+                .foregroundStyle(Color.primary)
             Text(viewModel.progressText)
                 .font(.subheadline)
                 .foregroundStyle(ThemePalette.muted)

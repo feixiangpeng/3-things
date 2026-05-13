@@ -11,9 +11,16 @@ struct VoiceCaptureView: View {
             if !compact {
                 Text("Voice")
                     .font(.title3.bold())
+                    .foregroundStyle(ThemePalette.primary)
             }
 
             statusView
+
+            VoiceWaveformView(
+                samples: speechManager.audioLevelSamples,
+                isRecording: speechManager.phase == .recording,
+                compact: compact
+            )
 
             recordToggleRow
 
@@ -21,7 +28,8 @@ struct VoiceCaptureView: View {
                speechManager.phase == .recording || speechManager.phase == .idle || speechManager.phase == .transcribing {
                 Text(speechManager.latestTranscript)
                     .font(.footnote)
-                    .themeCard(cornerRadius: 10, padding: 10)
+                    .foregroundStyle(Color.primary)
+                    .themeCard(cornerRadius: 12, padding: 10)
             }
 
             if !compact {
@@ -29,14 +37,15 @@ struct VoiceCaptureView: View {
                     speechManager.cancelRecording()
                     viewModel.returnToTextEntry()
                 }
-                .buttonStyle(.borderless)
+                .font(.subheadline.weight(.medium))
+                .buttonStyle(ThemeTealLinkButtonStyle())
             } else {
                 Button("Type instead") {
                     speechManager.cancelRecording()
                     viewModel.returnToTextEntry()
                 }
-                .font(.caption)
-                .buttonStyle(.borderless)
+                .font(.caption.weight(.medium))
+                .buttonStyle(ThemeTealLinkButtonStyle())
             }
 
             if !viewModel.extractionStatus.isEmpty {
@@ -50,7 +59,13 @@ struct VoiceCaptureView: View {
                 Text(speechManager.speechDiagnosticLine)
                     .font(.caption2.monospaced())
                     .foregroundStyle(ThemePalette.muted)
-                    .themeCard(cornerRadius: 8, padding: 8)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(ThemePalette.inputFill, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(ThemePalette.border.opacity(0.6), lineWidth: 1)
+                    )
             }
             #endif
 
@@ -59,9 +74,11 @@ struct VoiceCaptureView: View {
                 DisclosureGroup("Eval fixtures (debug)") {
                     evalFixtureSection
                 }
+                .tint(ThemePalette.primary)
             }
 #endif
         }
+        .themeSectionCard(cornerRadius: compact ? 14 : 16, padding: compact ? 12 : 16)
         .onChange(of: speechManager.latestTranscript) { _, newValue in
             viewModel.updateVoiceTranscriptSnapshot(newValue)
         }
@@ -117,6 +134,7 @@ struct VoiceCaptureView: View {
                     speechManager.cancelRecording()
                 }
                 .font(.subheadline)
+                .foregroundStyle(ThemePalette.muted)
             }
         }
     }
@@ -133,6 +151,7 @@ struct VoiceCaptureView: View {
 
             Text(viewModel.selectedVoiceFixture.transcript)
                 .font(.footnote)
+                .foregroundStyle(Color.primary)
                 .themeCard(cornerRadius: 10, padding: 10)
 
             Button("Generate draft from fixture") {
@@ -174,6 +193,7 @@ struct VoiceCaptureView: View {
         case .transcribing:
             HStack(spacing: 8) {
                 ProgressView()
+                    .tint(ThemePalette.primary)
                 Text("Finishing transcript…")
                     .font(.footnote)
                     .foregroundStyle(ThemePalette.muted)

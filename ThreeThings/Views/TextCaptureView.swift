@@ -8,6 +8,7 @@ struct TextCaptureView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Choose 1 to 3 things")
                 .font(.title3.bold())
+                .foregroundStyle(ThemePalette.primary)
 
             ForEach(0..<3, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 6) {
@@ -46,13 +47,9 @@ struct TextCaptureView: View {
                         ),
                         axis: .vertical
                     )
-                    .textFieldStyle(.roundedBorder)
-                    .overlay {
-                        if viewModel.duplicateTaskIndexes.contains(index) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(ThemePalette.overflow, lineWidth: 1)
-                        }
-                    }
+                    .textFieldStyle(.plain)
+                    .lineLimit(3...8)
+                    .themeInputField(cornerRadius: 12, isInvalid: viewModel.duplicateTaskIndexes.contains(index))
 
                     let count = viewModel.characterCount(at: index)
                     Text("\(count)/100")

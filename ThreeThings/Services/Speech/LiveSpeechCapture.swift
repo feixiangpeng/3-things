@@ -10,10 +10,44 @@ extension Notification.Name {
 
 private let speechLog = Logger(subsystem: "com.ismaelrobles.threethings", category: "SpeechLive")
 
+// MARK: - Audio level (RMS → normalized 0…1)
+
+enum AudioLevelMeter {
+    /// Maps microphone RMS to a Voice Memos–style normalized level (0 = silence, 1 = loud).
+    static func normalizedLevel(from buffer: AVAudioPCMBuffer) -> Double {
+        guard let floatData = buffer.floatChannelData else { return 0 }
+        let frameCount = Int(buffer.frameLength)
+        let channelCount = Int(buffer.format.channelCount)
+        guard frameCount > 0, channelCount > 0 else { return 0 }
+
+        var sumSquares: Double = 0
+        var sampleCount = 0
+        for channel in 0..<channelCount {
+            let samples = floatData[channel]
+            for frame in 0..<frameCount {
+                let s = Double(samples[frame])
+                sumSquares += s * s
+                sampleCount += 1
+            }
+        }
+
+        let rms = sqrt(sumSquares / Double(max(sampleCount, 1)))
+        // dBFS for float samples in [-1, 1]
+        let db = 20.0 * log10(max(rms, 1e-7))
+        let quietDb = -55.0
+        let loudDb = -12.0
+        let t = (db - quietDb) / (loudDb - quietDb)
+        return min(1, max(0, t))
+    }
+}
+
 /// Streaming speech-to-text used while the microphone is active (partial updates + final string on stop).
-@MainActor
-protocol LiveSpeechCapturing: AnyObject {
-    func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws
+protocol LiveSpeechCapturing: AnyObject, Sendable {
+    func start(
+        locale: Locale,
+        onPartial: @MainActor @escaping (String) -> Void,
+        onLevel: @MainActor @escaping (Double) -> Void
+    ) async throws
     func stop() async throws -> String
     func cancel()
 }
@@ -21,8 +55,7 @@ protocol LiveSpeechCapturing: AnyObject {
 // MARK: - Production (device)
 
 /// `SFSpeechRecognizer` + `AVAudioEngine` tap for partial transcripts during recording.
-@MainActor
-final class SFSpeechLiveCapture: LiveSpeechCapturing {
+final class SFSpeechLiveCapture: LiveSpeechCapturing, @unchecked Sendable {
     private let engine = AVAudioEngine()
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -34,8 +67,12 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
     private var recognitionFinished = false
     private var lastRecognitionError: Error?
 
-    func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws {
-        cancel()
+    func start(
+        locale: Locale,
+        onPartial: @MainActor @escaping (String) -> Void,
+        onLevel: @MainActor @escaping (Double) -> Void
+    ) async throws {
+        resetCaptureState(shouldDeactivateAudioSession: false)
         lastPartialText = ""
         bufferAppendCount = 0
         partialCallbackCount = 0
@@ -60,14 +97,11 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
         let recordingFormat = inputNode.outputFormat(forBus: 0)
 
         inputNode.removeTap(onBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak request, weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak request] buffer, _ in
             request?.append(buffer)
-            guard let self else { return }
+            let level = AudioLevelMeter.normalizedLevel(from: buffer)
             Task { @MainActor in
-                self.bufferAppendCount += 1
-                if self.bufferAppendCount == 1 || self.bufferAppendCount % 200 == 0 {
-                    self.emitDebug("audio buffers appended: \(self.bufferAppendCount)")
-                }
+                onLevel(level)
             }
         }
 
@@ -76,33 +110,33 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
         emitDebug("AVAudioEngine started")
 
         recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
+            guard let self else { return }
+
+            if let error {
+                self.emitDebug("recognition error: \(error.localizedDescription)")
+                self.lastRecognitionError = error
+                self.recognitionFinished = true
+                return
+            }
+
+            guard let result else {
+                self.emitDebug("recognition callback: nil result")
+                return
+            }
+
+            let text = result.bestTranscription.formattedString
+            self.lastPartialText = text
+            self.partialCallbackCount += 1
+            if self.partialCallbackCount <= 3 || self.partialCallbackCount % 15 == 0 {
+                self.emitDebug("partial #\(self.partialCallbackCount) len=\(text.count) isFinal=\(result.isFinal)")
+            }
             Task { @MainActor in
-                guard let self else { return }
-
-                if let error {
-                    self.emitDebug("recognition error: \(error.localizedDescription)")
-                    self.lastRecognitionError = error
-                    self.recognitionFinished = true
-                    return
-                }
-
-                guard let result else {
-                    self.emitDebug("recognition callback: nil result")
-                    return
-                }
-
-                let text = result.bestTranscription.formattedString
-                self.lastPartialText = text
-                self.partialCallbackCount += 1
-                if self.partialCallbackCount <= 3 || self.partialCallbackCount % 15 == 0 {
-                    self.emitDebug("partial #\(self.partialCallbackCount) len=\(text.count) isFinal=\(result.isFinal)")
-                }
                 onPartial(text)
+            }
 
-                if result.isFinal {
-                    self.emitDebug("recognition isFinal len=\(text.count)")
-                    self.recognitionFinished = true
-                }
+            if result.isFinal {
+                self.emitDebug("recognition isFinal len=\(text.count)")
+                self.recognitionFinished = true
             }
         }
     }
@@ -157,6 +191,10 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
 
     func cancel() {
         emitDebug("cancel")
+        resetCaptureState(shouldDeactivateAudioSession: true)
+    }
+
+    private func resetCaptureState(shouldDeactivateAudioSession: Bool) {
         lastPartialText = ""
         bufferAppendCount = 0
         partialCallbackCount = 0
@@ -173,8 +211,11 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
         recognitionRequest = nil
         speechRecognizer = nil
 
-        Task {
-            try? await deactivateAudioSession()
+        if shouldDeactivateAudioSession {
+            Task {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(false, options: .notifyOthersOnDeactivation)
+            }
         }
     }
 
@@ -194,26 +235,29 @@ final class SFSpeechLiveCapture: LiveSpeechCapturing {
 // MARK: - Simulator / tests
 
 /// Emits scripted partial strings on a short timer; `stop()` returns the final transcript.
-@MainActor
-final class MockLiveSpeechCapture: LiveSpeechCapturing {
+final class MockLiveSpeechCapture: LiveSpeechCapturing, @unchecked Sendable {
     private var partialScript: [String]
     private let finalTranscript: String
     /// When true, `stop()` returns an empty string (exercises merge with last partial in `SpeechCaptureManager`).
     private let returnEmptyStringFromStop: Bool
     /// When set, `stop()` throws this error after optional empty-string behavior (tests only).
     private let throwOnStop: Error?
+    /// Repeating normalized levels (0…1) for waveform tests; default mimics quiet→speech→decay.
+    private let levelPattern: [Double]
     private var emissionTasks: [Task<Void, Never>] = []
 
     init(
         partials: [String],
         finalTranscript: String,
         returnEmptyStringFromStop: Bool = false,
-        throwOnStop: Error? = nil
+        throwOnStop: Error? = nil,
+        levelPattern: [Double]? = nil
     ) {
         self.partialScript = partials
         self.finalTranscript = finalTranscript
         self.returnEmptyStringFromStop = returnEmptyStringFromStop
         self.throwOnStop = throwOnStop
+        self.levelPattern = levelPattern ?? [0.03, 0.06, 0.12, 0.28, 0.52, 0.45, 0.22, 0.1, 0.05, 0.04]
     }
 
     convenience init() {
@@ -223,7 +267,11 @@ final class MockLiveSpeechCapture: LiveSpeechCapturing {
         )
     }
 
-    func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws {
+    func start(
+        locale: Locale,
+        onPartial: @MainActor @escaping (String) -> Void,
+        onLevel: @MainActor @escaping (Double) -> Void
+    ) async throws {
         _ = locale
         cancelEmissions()
         for (index, text) in partialScript.enumerated() {
@@ -237,6 +285,21 @@ final class MockLiveSpeechCapture: LiveSpeechCapturing {
             }
             emissionTasks.append(task)
         }
+
+        let pattern = levelPattern
+        let levelTask = Task {
+            var index = 0
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 55_000_000)
+                guard !Task.isCancelled else { return }
+                let value = pattern[index % pattern.count]
+                index += 1
+                await MainActor.run {
+                    onLevel(value)
+                }
+            }
+        }
+        emissionTasks.append(levelTask)
     }
 
     func stop() async throws -> String {
