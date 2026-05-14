@@ -44,6 +44,7 @@
 		A00000000000000000000094 /* ThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000093 /* ThemePalette.swift */; };
 		A00000000000000000000098 /* LiveSpeechCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000097 /* LiveSpeechCapture.swift */; };
 		A00000000000000000000106 /* VoiceWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000107 /* VoiceWaveformView.swift */; };
+		A0000000000000000000010C /* ReplaceThingPickerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000010B /* ReplaceThingPickerOverlay.swift */; };
 		A00000000000000000000104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000105 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,7 @@
 		A00000000000000000000097 /* LiveSpeechCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSpeechCapture.swift; sourceTree = "<group>"; };
 		A00000000000000000000105 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A00000000000000000000107 /* VoiceWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceWaveformView.swift; sourceTree = "<group>"; };
+		A0000000000000000000010B /* ReplaceThingPickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceThingPickerOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000107 /* VoiceWaveformView.swift */,
+				A0000000000000000000010B /* ReplaceThingPickerOverlay.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 				A0000000000000000000003E /* LockedPlanView.swift in Sources */,
 				A0000000000000000000003F /* VoiceCaptureView.swift in Sources */,
 				A00000000000000000000106 /* VoiceWaveformView.swift in Sources */,
+				A0000000000000000000010C /* ReplaceThingPickerOverlay.swift in Sources */,
 				A00000000000000000000052 /* ExtractionReviewView.swift in Sources */,
 				A00000000000000000000040 /* PendingFinalizationView.swift in Sources */,
 				A00000000000000000000041 /* FocusDay.swift in Sources */,

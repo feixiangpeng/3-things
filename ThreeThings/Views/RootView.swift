@@ -1,46 +1,57 @@
 import SwiftUI
 
 struct RootView: View {
+    fileprivate static let rootScrollTopID = "rootScrollTop"
+
     @StateObject private var viewModel = AppViewModel()
     @StateObject private var speechManager = SpeechCaptureManager()
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    brandHeader
-                    header
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        brandHeader
+                            .id(RootView.rootScrollTopID)
 
-                    if viewModel.canEditPlan {
-                        if viewModel.selectedInputMode == .text {
-                            textModeStack
+                        header
+
+                        if viewModel.canEditPlan {
+                            if viewModel.selectedInputMode == .text {
+                                textModeStack
+                            } else {
+                                voiceModeStack
+                            }
                         } else {
-                            voiceModeStack
+                            LockedPlanView(viewModel: viewModel)
+                                .themeSectionCard()
                         }
-                    } else {
-                        LockedPlanView(viewModel: viewModel)
-                            .themeSectionCard()
+                    }
+                    .padding(20)
+                }
+                .scrollContentBackground(.hidden)
+                .themePageBackground()
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbarBackground(ThemePalette.background, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+                .toolbarColorScheme(.light, for: .navigationBar)
+                .onChange(of: viewModel.scrollRootToTopToken) { _, _ in
+                    withAnimation(.easeOut(duration: 0.28)) {
+                        scrollProxy.scrollTo(RootView.rootScrollTopID, anchor: .top)
                     }
                 }
-                .padding(20)
-            }
-            .scrollContentBackground(.hidden)
-            .themePageBackground()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(ThemePalette.background, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarColorScheme(.light, for: .navigationBar)
-            #if DEBUG
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink("Eval") {
-                        VoiceExtractionEvalView()
+                #if DEBUG
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink("Eval") {
+                            VoiceExtractionEvalView()
+                        }
+                        .font(.caption)
+                        .foregroundStyle(ThemePalette.primary)
                     }
-                    .font(.caption)
-                    .foregroundStyle(ThemePalette.primary)
                 }
+                #endif
             }
-            #endif
         }
         .preferredColorScheme(.light)
         .tint(ThemePalette.primary)

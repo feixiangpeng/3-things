@@ -3,14 +3,44 @@ import SwiftUI
 struct ExtractionReviewView: View {
     @ObservedObject var viewModel: AppViewModel
     @State private var isShowingLockConfirmation = false
+    @State private var pendingReplaceExtraIndex: Int?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            selectedTasks
-            extras
-            validation
-            actions
+        ZStack {
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                selectedTasks
+                extras
+                validation
+                actions
+            }
+
+            if let extraIdx = pendingReplaceExtraIndex,
+               viewModel.plan.extras.indices.contains(extraIdx) {
+                ReplaceThingPickerOverlay(
+                    extraPreview: viewModel.plan.extras[extraIdx],
+                    taskLines: (0..<3).map { viewModel.plan.tasks[$0].text },
+                    onPick: { slot in
+                        let pendingExtra = pendingReplaceExtraIndex
+                        if let e = pendingExtra,
+                           (0..<3).contains(slot),
+                           viewModel.plan.extras.indices.contains(e) {
+                            viewModel.replaceSelectedTask(at: slot, withExtraAt: e)
+                        }
+                        pendingReplaceExtraIndex = nil
+                    },
+                    onCancel: {
+                        pendingReplaceExtraIndex = nil
+                    }
+                )
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.2), value: pendingReplaceExtraIndex)
+        .onChange(of: viewModel.plan.extras) { _, extras in
+            if let p = pendingReplaceExtraIndex, !extras.indices.contains(p) {
+                pendingReplaceExtraIndex = nil
+            }
         }
         .confirmationDialog(
             "Lock today's things?",
@@ -145,12 +175,9 @@ struct ExtractionReviewView: View {
                     .themeInputField(cornerRadius: 12)
 
                     HStack {
-                        Menu("Replace selected") {
-                            ForEach(0..<3, id: \.self) { selectedIndex in
-                                Button("Thing \(selectedIndex + 1)") {
-                                    viewModel.replaceSelectedTask(at: selectedIndex, withExtraAt: index)
-                                }
-                            }
+                        Button("Replace…") {
+                            pendingReplaceExtraIndex = index
+                            viewModel.requestScrollRootToTop()
                         }
                         .foregroundStyle(ThemePalette.primary)
 

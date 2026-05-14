@@ -16,6 +16,8 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var userHasCustomizedVoicePlan: Bool = false
     /// True while the speech capture pipeline is actively recording.
     @Published private(set) var isVoiceRecordingActive: Bool = false
+    /// Bumped when the root `ScrollView` should scroll to the top (e.g. replace-extra picker).
+    @Published private(set) var scrollRootToTopToken: UInt = 0
 
     private struct StoredState: Codable {
         var plan: DailyPlan?
@@ -164,6 +166,11 @@ final class AppViewModel: ObservableObject {
     func characterCount(at index: Int) -> Int {
         guard plan.tasks.indices.contains(index) else { return 0 }
         return normalized(plan.tasks[index].text).count
+    }
+
+    /// Scroll the root screen to the top (used when presenting UI anchored to the top, e.g. replace-extra picker).
+    func requestScrollRootToTop() {
+        scrollRootToTopToken &+= 1
     }
 
     func updateTaskText(at index: Int, text: String) {
