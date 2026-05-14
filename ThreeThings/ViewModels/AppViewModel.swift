@@ -452,6 +452,7 @@ final class AppViewModel: ObservableObject {
             let draft = try await voiceDraftExtractor.extractDraft(from: cleanTranscript)
             if isLive, normalized(lastHeardTranscript) != cleanTranscript {
                 // Transcript moved on while extraction ran (e.g. partials after flush).
+                extractionStatus = "You kept talking—that draft was skipped; matching your latest words next."
                 return
             }
             startVoiceDraftReview(from: draft)
@@ -461,6 +462,7 @@ final class AppViewModel: ObservableObject {
                 : "Drafted tasks from \(voiceDraftExtractor.providerName). Review and lock."
         } catch {
             if isLive, normalized(lastHeardTranscript) != cleanTranscript {
+                extractionStatus = "Transcript changed while extracting—we'll try again with what you said last."
                 return
             }
             if isLive {
