@@ -47,10 +47,18 @@ def apply_tool_calls(
 ) -> RoundResult:
     ex = session.to_executor() if session else ToolTraceExecutor()
     no_action: str | None = None
-    for call in calls:
-        r = ex.apply_call(call)
+
+    # set_draft alone replaces state; ignore mixed sequences after first set_draft.
+    set_calls = [c for c in calls if c.get("tool") == "set_draft"]
+    if set_calls:
+        r = ex.apply_set_draft(set_calls[-1])
         if r is not None:
             no_action = r
+    else:
+        for call in calls:
+            r = ex.apply_call(call)
+            if r is not None:
+                no_action = r
 
     full = step.full_transcript
     if no_action and not ex.selected and not ex.extras:

@@ -1,5 +1,28 @@
 import Foundation
 
+// MARK: - Tool-guided extraction types
+
+struct VoiceDraftExtractionContext: Sendable, Equatable {
+    /// Full transcript (normalized by caller).
+    var fullTranscript: String
+    /// New suffix since `existingState?.processedTranscriptCharacterCount` (or full transcript when session reset).
+    var newFragment: String
+    var existingState: VoiceDraftSessionState?
+    /// True when the user stopped recording or pasted final text (prompt may finalize).
+    var userFinishedSpeaking: Bool = false
+}
+
+enum NoDraftReason: Sendable, Equatable {
+    case incomplete
+    case noActionable
+    case unchanged
+}
+
+enum VoiceDraftExtractionOutcome: Sendable, Equatable {
+    case draft(VoiceExtractionDraft)
+    case noDraft(reason: NoDraftReason)
+}
+
 enum VoiceDraftExtractionError: LocalizedError, Equatable {
     case emptyTranscript
     case modelUnavailable
@@ -22,15 +45,38 @@ enum VoiceDraftExtractionError: LocalizedError, Equatable {
 
 protocol VoiceDraftExtracting: Sendable {
     var providerName: String { get }
-    func extractDraft(from transcript: String) async throws -> VoiceExtractionDraft
+
+    /// Applies a transcript delta to an optional existing session (tool-guided on device; heuristic on simulator).
+    func applyTranscript(_ context: VoiceDraftExtractionContext) async throws -> (VoiceDraftExtractionOutcome, VoiceDraftSessionState)
 }
 
-/// Deterministic split-based extractor used in unit tests and on the Simulator (no live model).
-struct HeuristicVoiceDraftExtractor: VoiceDraftExtracting {
-    let providerName = "Heuristic"
-
+extension VoiceDraftExtracting {
     func extractDraft(from transcript: String) async throws -> VoiceExtractionDraft {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw VoiceDraftExtractionError.emptyTranscript }
+        let (outcome, _) = try await applyTranscript(
+            VoiceDraftExtractionContext(
+                fullTranscript: trimmed,
+                newFragment: trimmed,
+                existingState: nil,
+                userFinishedSpeaking: true
+            )
+        )
+        switch outcome {
+        case .draft(let draft):
+            return draft
+        case .noDraft:
+            throw VoiceDraftExtractionError.emptyModelOutput
+        }
+    }
+}
+
+/// Deterministic split-based path used on the Simulator (no Apple Intelligence). Rebuilds from the full transcript each round.
+struct HeuristicToolVoiceDraftExtractor: VoiceDraftExtracting {
+    let providerName = "Heuristic"
+
+    func applyTranscript(_ context: VoiceDraftExtractionContext) async throws -> (VoiceDraftExtractionOutcome, VoiceDraftSessionState) {
+        let trimmed = context.fullTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw VoiceDraftExtractionError.emptyTranscript }
 
         let split = trimmed
@@ -42,12 +88,29 @@ struct HeuristicVoiceDraftExtractor: VoiceDraftExtracting {
         let tasks = Array(deduped.prefix(3))
         let extras = deduped.count > 3 ? Array(deduped.dropFirst(3)) : []
 
-        return try VoiceDraftPostProcessor.buildDraft(
-            selectedTasks: tasks,
-            extraCandidates: extras,
-            detectedMoreThanThree: deduped.count > 3,
-            cleanedTranscript: trimmed
-        )
+        do {
+            let draft = try VoiceDraftPostProcessor.buildDraft(
+                selectedTasks: tasks,
+                extraCandidates: extras,
+                detectedMoreThanThree: deduped.count > 3,
+                cleanedTranscript: trimmed
+            )
+            let state = VoiceDraftSessionState(
+                selectedTasks: draft.selectedTasks,
+                extraCandidates: draft.extraCandidates,
+                processedTranscriptCharacterCount: trimmed.count,
+                lastFullTranscript: trimmed
+            )
+            return (.draft(draft), state)
+        } catch {
+            let state = VoiceDraftSessionState(
+                selectedTasks: [],
+                extraCandidates: [],
+                processedTranscriptCharacterCount: trimmed.count,
+                lastFullTranscript: trimmed
+            )
+            return (.noDraft(reason: .noActionable), state)
+        }
     }
 }
 
@@ -169,12 +232,12 @@ enum VoiceDraftPostProcessor {
 }
 
 enum AppVoiceDraftExtractorFactory {
-    /// Simulator builds use deterministic extraction; devices use Apple Foundation Models when available.
+    /// Simulator builds use deterministic extraction; devices use tool-guided Apple Foundation Models when available.
     static func `default`() -> any VoiceDraftExtracting {
         #if targetEnvironment(simulator)
-        return HeuristicVoiceDraftExtractor()
+        return HeuristicToolVoiceDraftExtractor()
         #else
-        return FoundationModelsVoiceDraftExtractor()
+        return ToolVoiceDraftExtractor()
         #endif
     }
 }

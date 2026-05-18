@@ -89,4 +89,23 @@ cd evals && .venv/bin/python run_tool_eval.py --subset diagnostic --variants 1 -
 
 # All offline tests (fixture integrity, step scorer, SFT export):
 .venv/bin/python -m unittest discover -q -p 'test_*.py'
+
+# Walk live rounds: full + fragment per step (offline, no API):
+.venv/bin/python partial_harness.py walk --case correction_never_mind_single
+.venv/bin/python partial_harness.py walk --case correction_never_mind_single --show-prompt
+.venv/bin/python partial_harness.py compare-prompts --case correction_never_mind_single
+
+# Fragment ablation: full+fragment vs omit line (correction subset, needs GROQ_API_KEY):
+.venv/bin/python run_fragment_ablation.py --score-steps --out reports/fragment_ablation.json
+.venv/bin/python run_tool_eval.py --cases correction_never_mind_single --prompt-mode omit_fragment --score-steps
+
+# Multi-step avg@2 (stochastic repeats per variant):
+.venv/bin/python run_tool_eval.py --subset autoresearch --variants 1 --runs 2 --score-steps --tool-contract set_state --out reports/tools_autoresearch.json
+
+# Overnight autoresearch (prompt + harness; see autoresearch/program.md):
+set -a && . /path/to/llm_api/.env && set +a
+.venv/bin/python autoresearch/run_experiment.py --dry-run
+.venv/bin/python autoresearch/run_experiment.py --description baseline
+.venv/bin/python autoresearch/summarize_results.py
+.venv/bin/python analyze_tools.py --latest
 ```

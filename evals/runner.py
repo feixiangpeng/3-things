@@ -69,6 +69,29 @@ EDGE_CASE_SUBSET = [
 
 FULL_LIVE_SUBSET = sorted(set(EXPANDED_SUBSET + EDGE_CASE_SUBSET))
 
+# Cases where per-step fragment signal matters most (corrections / mid-utterance edits).
+CORRECTION_ABLATION_SUBSET = [
+    "correction_never_mind_single",
+    "correction_replace_call_with_text",
+    "correction_remove_one_keep_others",
+    "correction_park_to_store_direct",
+    "correction_forget_everything",
+    "overflow_then_drop_fourth",
+    "future_intraday_correction",
+]
+
+# Representative subset for overnight autoresearch (variant 0, avg@2).
+AUTORESEARCH_SUBSET = [
+    "literal_three_store_park_food",
+    "overflow_four_clean",
+    "correction_never_mind_single",
+    "correction_replace_call_with_text",
+    "correction_park_to_store_direct",
+    "no_task_testing",
+    "duplicate_email_sam",
+    "overflow_then_drop_fourth",
+]
+
 
 @dataclass
 class RunOutcome:

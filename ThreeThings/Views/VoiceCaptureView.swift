@@ -95,21 +95,19 @@ struct VoiceCaptureView: View {
         .onChange(of: speechManager.latestTranscript) { _, newValue in
             viewModel.updateVoiceTranscriptSnapshot(newValue)
         }
-        .onChange(of: speechManager.phase) { oldPhase, newPhase in
+        .onChange(of: speechManager.phase) { _, newPhase in
             viewModel.setVoiceRecordingActive(newPhase == .recording)
-            if case .transcribing = oldPhase, case .idle = newPhase {
-                Task {
-                    await viewModel.flushLiveExtractionNow(transcript: speechManager.latestTranscript)
-                }
-            }
-            if case .failed = newPhase {
-                Task {
-                    await viewModel.flushLiveExtractionNow(transcript: speechManager.latestTranscript)
-                }
-            }
         }
         .onAppear {
             viewModel.setVoiceRecordingActive(speechManager.isRecording)
+            speechManager.onFinalTranscript = { [viewModel] transcript in
+                Task {
+                    await viewModel.ingestFinalTranscript(transcript)
+                }
+            }
+        }
+        .onDisappear {
+            speechManager.onFinalTranscript = nil
         }
     }
 

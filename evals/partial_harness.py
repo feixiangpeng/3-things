@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 from live_replay import LiveStep, live_steps_for_case, should_skip_model_round
 from scorer import score
+from tool_extractor import PromptMode, format_user_message
 from tool_runner import build_draft
 from tool_session import SessionState, run_live_steps
 
@@ -130,14 +131,48 @@ def run_offline_case(case: dict, trace_path: pathlib.Path) -> tuple[SessionState
     return session, trace, (draft, err)
 
 
-def print_walk_table(views: list[StepView]) -> None:
+def print_walk_table(
+    views: list[StepView],
+    *,
+    steps: list[LiveStep] | None = None,
+    show_prompt: bool = False,
+    prompt_mode: PromptMode = "full_and_fragment",
+) -> None:
     for v in views:
         kind = "skip" if v.skip else "model"
         tasks = " | ".join(v.selected) if v.selected else "(none)"
         print(f"--- round {v.index} [{kind}] finished={v.finished}")
         print(f"  full:     {v.full}")
         print(f"  fragment: {v.fragment or '(empty)'}")
+        if v.fragment and v.full and v.fragment != v.full:
+            print(f"  (fragment is suffix from char {len(v.full) - len(v.fragment)} of full)")
         print(f"  selected: {tasks}")
+        if show_prompt and steps and not v.skip:
+            session = SessionState(
+                selected_tasks=list(v.selected),
+                extra_candidates=list(v.extra),
+            )
+            msg = format_user_message(
+                steps[v.index],
+                session,
+                prompt_mode=prompt_mode,
+                tool_contract="mutation",
+            )
+            print("  --- Groq user message ---")
+            for line in msg.splitlines():
+                print(f"    {line}")
+            print("  --- end user message ---")
+
+
+def print_prompt_mode_comparison(case_id: str, *, variant_index: int = 0) -> None:
+    """Show how user messages differ between full+fragment vs omit_fragment."""
+    case = load_cases()[case_id]
+    steps = live_steps_for_case(case, variant_index=variant_index)
+    views = walk_steps(steps)
+    modes: list[PromptMode] = ["full_and_fragment", "omit_fragment", "blank_fragment"]
+    for mode in modes:
+        print(f"\n========== prompt_mode={mode} ==========")
+        print_walk_table(views, steps=steps, show_prompt=True, prompt_mode=mode)
 
 
 def main() -> int:
@@ -146,14 +181,49 @@ def main() -> int:
     walk_p = sub.add_parser("walk", help="Print full/fragment per round for a case")
     walk_p.add_argument("--case", required=True)
     walk_p.add_argument("--variant", type=int, default=0)
+    walk_p.add_argument(
+        "--show-prompt",
+        action="store_true",
+        help="Print the Groq user message the model would see each round",
+    )
+    walk_p.add_argument(
+        "--prompt-mode",
+        choices=["full_and_fragment", "omit_fragment", "blank_fragment"],
+        default="full_and_fragment",
+    )
+    walk_p.add_argument(
+        "--compare-prompt-modes",
+        action="store_true",
+        help="Print user messages for all three prompt modes (offline, no API)",
+    )
+
+    compare_p = sub.add_parser(
+        "compare-prompts",
+        help="Offline diff of user messages across prompt modes",
+    )
+    compare_p.add_argument("--case", required=True)
+    compare_p.add_argument("--variant", type=int, default=0)
+
     args = ap.parse_args()
 
     if args.cmd == "walk":
-        views = walk_case(args.case, variant_index=args.variant)
-        print_walk_table(views)
-        assert_partial_invariants(
-            live_steps_for_case(load_cases()[args.case], variant_index=args.variant)
-        )
+        case = load_cases()[args.case]
+        steps = live_steps_for_case(case, variant_index=args.variant)
+        views = walk_steps(steps)
+        if args.compare_prompt_modes:
+            print_prompt_mode_comparison(args.case, variant_index=args.variant)
+        else:
+            print_walk_table(
+                views,
+                steps=steps,
+                show_prompt=args.show_prompt,
+                prompt_mode=args.prompt_mode,
+            )
+        assert_partial_invariants(steps)
+        return 0
+
+    if args.cmd == "compare-prompts":
+        print_prompt_mode_comparison(args.case, variant_index=args.variant)
         return 0
     return 1
 

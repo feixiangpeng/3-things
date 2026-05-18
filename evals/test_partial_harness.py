@@ -126,7 +126,8 @@ class PartialHarnessTests(unittest.TestCase):
         self.assertEqual(len(captured), 1)
         body = captured[0]
         self.assertIn("Full transcript:", body)
-        self.assertIn("New fragment (since last applied position):", body)
+        self.assertIn("New fragment:", body)
+        self.assertIn("Current selected:", body)
         self.assertIn("Go to the park", body)
 
     def test_scripted_trace_step_and_final_scoring(self) -> None:

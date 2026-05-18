@@ -219,9 +219,23 @@ class ToolTraceExecutor:
         self.extras.clear()
         self.messages.append("Cleared all tasks.")
 
+    def apply_set_draft(self, call: dict) -> str | None:
+        """Replace entire draft from set_draft tool output."""
+        if not call.get("contains_actionable_tasks", True):
+            self.selected.clear()
+            self.extras.clear()
+            self.messages.append("set_draft: no actionable tasks.")
+            return "no_actionable"
+        self.selected = [str(t)[:_CAP].strip() for t in call.get("selected_tasks") or [] if str(t).strip()]
+        self.extras = [str(t)[:_CAP].strip() for t in call.get("extra_candidates") or [] if str(t).strip()]
+        self.messages.append("set_draft: applied target state.")
+        return None
+
     def apply_call(self, call: dict) -> str | None:
         """Returns `no_action` reason string if present, else None."""
         tool = call.get("tool")
+        if tool == "set_draft":
+            return self.apply_set_draft(call)
         if tool == "add_task":
             self.add_task(str(call.get("text", "")))
         elif tool == "delete_task":

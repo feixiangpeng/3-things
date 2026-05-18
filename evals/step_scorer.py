@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from scorer import Draft, meaning_matches, normalize, score
+from tool_policy import check_tool_policy
 
 
 @dataclass
@@ -149,6 +150,8 @@ def score_step(
     extras: list[str],
     calls: list[dict],
     strict_tools: bool = False,
+    full_transcript: str = "",
+    new_fragment: str = "",
 ) -> StepScoreResult:
     """Score session state after one live round; tool checks are advisory unless strict_tools."""
     mini = _step_case_from_expectation(step_exp)
@@ -156,6 +159,14 @@ def score_step(
     attempt = score(mini, draft, None if draft else "empty_model_output")
 
     tool_warnings = _check_tools(calls, step_exp)
+    tool_warnings.extend(
+        check_tool_policy(
+            calls,
+            full_transcript=full_transcript,
+            new_fragment=new_fragment,
+        )
+    )
+    tool_warnings = sorted(set(tool_warnings))
     reasons = [r.value for r in attempt.reasons]
     reasons.extend(_step_semantic_reasons(step_exp, selected, extras))
     reasons = sorted(set(reasons))
