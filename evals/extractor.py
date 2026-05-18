@@ -1,5 +1,5 @@
-"""Groq llama-3.1-8b-instant proxy extractor. Mirrors the GeneratedVoiceDraft schema
-from FoundationModelsVoiceDraftExtractor.swift.
+"""Groq llama-3.1-8b-instant proxy extractor. Mirrors the on-device draft schema
+(`VoiceExtractionDraft` / former `GeneratedVoiceDraft`) for snapshot JSON prompts.
 
 Groq is fast and has generous limits, so the runner can parallelize. We use the
 OpenAI-compatible chat completions endpoint with JSON-mode response_format.

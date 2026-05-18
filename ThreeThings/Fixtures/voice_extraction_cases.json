@@ -25,7 +25,44 @@
         "prepare dinner",
         "organize errands"
       ],
-      "notes": "Literal three tasks; no invention."
+      "notes": "Literal three tasks; no invention.",
+      "livePartials": [
+        "Go",
+        "Go to",
+        "Go to a store",
+        "Go to a store, go",
+        "Go to a store, go to the park",
+        "Go to a store, go to the park, and",
+        "Go to a store, go to the park, and eat food."
+      ],
+      "liveSnapshots": [
+        "Go to a store",
+        "Go to a store, go to the park",
+        "Go to a store, go to the park, and eat food."
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["go to a store"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["go to the park", "eat food", "buy groceries"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["go to a store", "go to the park"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["eat food", "buy groceries"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["go to a store", "go to the park", "eat food"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["buy groceries", "enjoy the park", "prepare dinner"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        }
+      ]
     },
     {
       "id": "literal_one_email",
@@ -99,7 +136,49 @@
         "family planning",
         "financial planning"
       ],
-      "notes": "Four distinct tasks; fourth in extras; overflow true."
+      "notes": "Four distinct tasks; fourth in extras; overflow true.",
+      "livePartials": [
+        "Email Sam",
+        "Email Sam, pay rent",
+        "Email Sam, pay rent, buy milk",
+        "Email Sam, pay rent, buy milk, call mom"
+      ],
+      "liveSnapshots": [
+        "Email Sam",
+        "Email Sam, pay rent",
+        "Email Sam, pay rent, buy milk",
+        "Email Sam, pay rent, buy milk, call mom"
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["email Sam"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["pay rent", "buy milk", "call mom"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["email Sam", "pay rent"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["buy milk", "call mom"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["email Sam", "pay rent", "buy milk"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["call mom"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["email Sam", "pay rent", "buy milk"],
+          "extraMeanings": ["call mom"],
+          "forbiddenMeanings": ["grocery shopping beyond milk"],
+          "expectedOverflow": true,
+          "expectsNoDraft": false
+        }
+      ]
     },
     {
       "id": "overflow_six_messy",
@@ -177,7 +256,37 @@
         "go to the park",
         "buy groceries"
       ],
-      "notes": "Canceled park; final intent is store only."
+      "notes": "Canceled park; final intent is store only.",
+      "livePartials": [
+        "Go to the park",
+        "Go to the park, wait",
+        "Go to the park, wait never mind",
+        "Go to the park, wait never mind, go",
+        "Go to the park, wait never mind, go to the store."
+      ],
+      "liveSnapshots": [
+        "Go to the park",
+        "Go to the park, wait never mind, go to the store."
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["go to the park"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["go to the store", "buy groceries"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false,
+          "allowedTools": ["add_task", "no_action"]
+        },
+        {
+          "selectedMeanings": ["go to the store"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["go to the park", "buy groceries"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false,
+          "category": "correction",
+          "requiredToolsAny": ["delete_task", "revise_task", "add_task", "clear_draft"]
+        }
+      ]
     },
     {
       "id": "correction_replace_call_with_text",
@@ -245,7 +354,35 @@
         "follow up with Sam as a separate task",
         "write email draft as separate from send email"
       ],
-      "notes": "Duplicate phrasing should collapse to one email-Sam task."
+      "notes": "Duplicate phrasing should collapse to one email-Sam task.",
+      "livePartials": [
+        "Email Sam",
+        "Email Sam, pay rent",
+        "Email Sam, pay rent, send Sam an email"
+      ],
+      "liveSnapshots": [
+        "Email Sam",
+        "Email Sam, pay rent, send Sam an email"
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["email Sam"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["pay rent", "follow up with Sam as a separate task"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        },
+        {
+          "selectedMeanings": ["email Sam", "pay rent"],
+          "extraMeanings": [],
+          "forbiddenMeanings": [
+            "follow up with Sam as a separate task",
+            "write email draft as separate from send email"
+          ],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        }
+      ]
     },
     {
       "id": "duplicate_grocery_wording",
@@ -290,7 +427,30 @@
         "organize workspace",
         "set reminders"
       ],
-      "notes": "Mic test / no actionable tasks; extractor should return empty (containsActionableTasks=false)."
+      "notes": "Mic test / no actionable tasks; extractor should return empty (containsActionableTasks=false).",
+      "livePartials": [
+        "Testing",
+        "Testing, testing",
+        "Testing, testing, one two",
+        "Testing, testing, one two three."
+      ],
+      "liveSnapshots": [
+        "Testing, testing, one two three."
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": [],
+          "extraMeanings": [],
+          "forbiddenMeanings": [
+            "prepare for meeting",
+            "review emails",
+            "call client",
+            "organize workspace"
+          ],
+          "expectedOverflow": false,
+          "expectsNoDraft": true
+        }
+      ]
     },
     {
       "id": "no_task_random_talk",
@@ -337,7 +497,25 @@
         "buy milk",
         "run errands"
       ],
-      "notes": "Do not infer shopping list from store alone."
+      "notes": "Do not infer shopping list from store alone.",
+      "livePartials": [
+        "I need to",
+        "I need to go to",
+        "I need to go to the store",
+        "I need to go to the store today."
+      ],
+      "liveSnapshots": [
+        "I need to go to the store today."
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["go to the store"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["buy groceries", "buy milk", "run errands"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false
+        }
+      ]
     },
     {
       "id": "inference_eat_food_only",
@@ -456,7 +634,26 @@
         "call accountant",
         "gather receipts"
       ],
-      "notes": "Preserve vague task as stated; do not over-specify."
+      "notes": "Preserve vague task as stated; do not over-specify.",
+      "livePartials": [
+        "I should",
+        "I should figure out",
+        "I should figure out taxes",
+        "I should figure out taxes this week."
+      ],
+      "liveSnapshots": [
+        "I should figure out taxes this week."
+      ],
+      "liveStepExpectations": [
+        {
+          "selectedMeanings": ["taxes"],
+          "extraMeanings": [],
+          "forbiddenMeanings": ["file tax return", "call accountant", "gather receipts"],
+          "expectedOverflow": false,
+          "expectsNoDraft": false,
+          "category": "vague"
+        }
+      ]
     },
     {
       "id": "vague_apartment",

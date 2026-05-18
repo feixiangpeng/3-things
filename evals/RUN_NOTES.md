@@ -52,4 +52,23 @@ python runner.py --prompt prompts/v7_more_correction_examples.txt --runs 5 --sub
 
 # Analyze:
 python analyze.py reports/<report>.json
+
+# Tool-calling live replay (multi-step Groq; uses fixture liveSnapshots):
+cd evals && .venv/bin/python run_tool_eval.py --subset diagnostic --variants 1 --concurrency 1 --out reports/tools_diagnostic.json
+
+# Regenerate liveSnapshots from livePartials after editing partial scripts:
+.venv/bin/python generate_live_snapshots.py --fixture ../ThreeThings/Fixtures/voice_extraction_cases.json --write
+
+# Offline trace replay (ideal traces + captured multi-step):
+.venv/bin/python run_tool_traces.py
+
+# Partial harness (fragment + session state per round):
+.venv/bin/python partial_harness.py walk --case correction_never_mind_single
+.venv/bin/python -m unittest test_partial_harness test_live_replay_parity -q
+
+# Smoke: offline invariants + scripted trace + Groq multi-step (needs GROQ_API_KEY):
+.venv/bin/python smoke_partial_harness.py
+
+# Multi-step Groq eval with per-step + final scoring:
+.venv/bin/python run_tool_eval.py --subset diagnostic --variants 1 --score-steps --capture-trace --out reports/tools_steps_diagnostic.json
 ```
