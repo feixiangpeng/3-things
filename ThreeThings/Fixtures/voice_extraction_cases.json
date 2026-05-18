@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "cases": [
     {
       "id": "literal_three_store_park_food",
@@ -26,6 +26,53 @@
         "organize errands"
       ],
       "notes": "Literal three tasks; no invention."
+    },
+    {
+      "id": "literal_one_email",
+      "category": "literal",
+      "transcriptVariants": [
+        "Email Sam.",
+        "Uh, email Sam. That's the main thing.",
+        "I need to email Sam today.",
+        "Could you put email Sam as my thing?",
+        "Email Sam about the proposal."
+      ],
+      "expectedSelectedMeanings": [
+        "email Sam"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "write proposal",
+        "schedule meeting with Sam",
+        "follow up with client"
+      ],
+      "notes": "Single literal task; no inference about proposal or follow-up."
+    },
+    {
+      "id": "literal_two_call_and_pay",
+      "category": "literal",
+      "transcriptVariants": [
+        "Call mom and pay rent.",
+        "Um, call mom, uh, and pay rent.",
+        "Today, call my mom and pay rent.",
+        "The two things are call mom and pay the rent.",
+        "I need to call mom. Also pay rent."
+      ],
+      "expectedSelectedMeanings": [
+        "call mom",
+        "pay rent"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "visit mom",
+        "budget finances",
+        "pay bills generally"
+      ],
+      "notes": "Two literal tasks; no generalization."
     },
     {
       "id": "overflow_four_clean",
@@ -55,6 +102,62 @@
       "notes": "Four distinct tasks; fourth in extras; overflow true."
     },
     {
+      "id": "overflow_six_messy",
+      "category": "overflow",
+      "transcriptVariants": [
+        "Uh today I need to finish the deck, call Alex, book dentist, buy milk, clean the kitchen, and return the package.",
+        "So, finish the deck, um, call Alex, book the dentist, buy milk, clean kitchen, return package.",
+        "I have too much. Finish deck. Call Alex. Dentist. Milk. Kitchen. Return package.",
+        "The things are finish the deck, call Alex, book a dentist appointment, buy milk, clean the kitchen, and return the package.",
+        "Okay, finish deck, call Alex, book dentist, buy milk, clean kitchen, return package, that's too many."
+      ],
+      "expectedSelectedMeanings": [
+        "finish the deck",
+        "call Alex",
+        "book dentist"
+      ],
+      "expectedExtraMeanings": [
+        "buy milk",
+        "clean the kitchen",
+        "return the package"
+      ],
+      "expectedOverflow": true,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "prepare presentation",
+        "go to dentist",
+        "grocery shopping beyond buy milk"
+      ],
+      "notes": "Six distinct tasks; first three selected, remaining three in extras."
+    },
+    {
+      "id": "overflow_one_extra_only",
+      "category": "overflow",
+      "transcriptVariants": [
+        "Do laundry, submit timesheet, text Jamie, and take out trash.",
+        "Um, laundry, submit the timesheet, text Jamie, take out trash.",
+        "I need to do laundry. Submit timesheet. Text Jamie. Take out the trash.",
+        "The tasks are do laundry, submit my timesheet, text Jamie, take out trash.",
+        "Do the laundry, submit timesheet, text Jamie, and trash."
+      ],
+      "expectedSelectedMeanings": [
+        "do laundry",
+        "submit timesheet",
+        "text Jamie"
+      ],
+      "expectedExtraMeanings": [
+        "take out trash"
+      ],
+      "expectedOverflow": true,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "clean house",
+        "message team",
+        "organize chores"
+      ],
+      "notes": "Four tasks; one extra; overflow true."
+    },
+    {
       "id": "correction_never_mind_single",
       "category": "correction",
       "transcriptVariants": [
@@ -77,50 +180,49 @@
       "notes": "Canceled park; final intent is store only."
     },
     {
-      "id": "no_task_testing",
-      "category": "no_task",
+      "id": "correction_replace_call_with_text",
+      "category": "correction",
       "transcriptVariants": [
-        "Hello? Testing, testing.",
-        "Um, hello, is this working?",
-        "Testing one two three.",
-        "Uh, I don't know, just testing the mic.",
-        "This is a test. Hello hello."
-      ],
-      "expectedSelectedMeanings": [],
-      "expectedExtraMeanings": [],
-      "expectedOverflow": false,
-      "expectsNoDraft": true,
-      "forbiddenMeanings": [
-        "prepare for meeting",
-        "review emails",
-        "call client",
-        "organize workspace",
-        "set reminders"
-      ],
-      "notes": "Mic test / no actionable tasks; extractor should surface empty output (throw emptyModelOutput)."
-    },
-    {
-      "id": "inference_store_only",
-      "category": "inference_trap",
-      "transcriptVariants": [
-        "Go to the store.",
-        "Uh, go to a store.",
-        "I need to go to the store today.",
-        "Put go to the store.",
-        "The only thing is go to the store."
+        "Call Alex, actually make that text Alex.",
+        "I need to call Alex. Wait, no, text Alex instead.",
+        "Call Alex, scratch that, text Alex.",
+        "Uh, text Alex, not call Alex.",
+        "Put text Alex. I said call at first but I mean text."
       ],
       "expectedSelectedMeanings": [
-        "go to the store"
+        "text Alex"
       ],
       "expectedExtraMeanings": [],
       "expectedOverflow": false,
       "expectsNoDraft": false,
       "forbiddenMeanings": [
-        "buy groceries",
-        "buy milk",
-        "run errands"
+        "call Alex",
+        "schedule with Alex"
       ],
-      "notes": "Do not infer shopping list from store alone."
+      "notes": "Replacement correction; only the corrected task survives."
+    },
+    {
+      "id": "correction_remove_one_keep_others",
+      "category": "correction",
+      "transcriptVariants": [
+        "Email Sam, go to the gym, actually skip gym, and pay rent.",
+        "Email Sam, gym, no gym today, pay rent.",
+        "I need email Sam, go gym, wait never mind on gym, pay rent.",
+        "Email Sam. Scratch going to the gym. Pay rent.",
+        "Put email Sam and pay rent. I almost said gym but not today."
+      ],
+      "expectedSelectedMeanings": [
+        "email Sam",
+        "pay rent"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "go to gym",
+        "exercise"
+      ],
+      "notes": "Removed one mid-list task; others preserved."
     },
     {
       "id": "duplicate_email_sam",
@@ -146,6 +248,145 @@
       "notes": "Duplicate phrasing should collapse to one email-Sam task."
     },
     {
+      "id": "duplicate_grocery_wording",
+      "category": "duplicate",
+      "transcriptVariants": [
+        "Buy milk, get milk from the store, and call mom.",
+        "Uh buy milk, pick up milk, call mom.",
+        "Need milk, buy milk, and call mom.",
+        "Go get milk, buy milk, call mom.",
+        "Milk from store, buy milk, call mom."
+      ],
+      "expectedSelectedMeanings": [
+        "buy milk",
+        "call mom"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "grocery shopping generally"
+      ],
+      "notes": "Milk rephrased multiple ways; collapse to one task."
+    },
+    {
+      "id": "no_task_testing",
+      "category": "no_task",
+      "transcriptVariants": [
+        "Hello? Testing, testing.",
+        "Um, hello, is this working?",
+        "Testing one two three.",
+        "Uh, I don't know, just testing the mic.",
+        "This is a test. Hello hello."
+      ],
+      "expectedSelectedMeanings": [],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": true,
+      "forbiddenMeanings": [
+        "prepare for meeting",
+        "review emails",
+        "call client",
+        "organize workspace",
+        "set reminders"
+      ],
+      "notes": "Mic test / no actionable tasks; extractor should return empty (containsActionableTasks=false)."
+    },
+    {
+      "id": "no_task_random_talk",
+      "category": "no_task",
+      "transcriptVariants": [
+        "I'm tired and I don't really know what I'm doing today.",
+        "Uh, today feels weird. I need coffee.",
+        "I'm just talking to see what happens.",
+        "So yeah, lots going on, not sure yet.",
+        "I don't have tasks right now."
+      ],
+      "expectedSelectedMeanings": [],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": true,
+      "forbiddenMeanings": [
+        "plan day",
+        "rest",
+        "organize priorities",
+        "get coffee",
+        "make coffee",
+        "drink coffee"
+      ],
+      "notes": "Open-ended talk; product decision: 'I need coffee' is context, not a task."
+    },
+    {
+      "id": "inference_store_only",
+      "category": "inference_trap",
+      "transcriptVariants": [
+        "Go to the store.",
+        "Uh, go to a store.",
+        "I need to go to the store today.",
+        "Put go to the store.",
+        "The only thing is go to the store."
+      ],
+      "expectedSelectedMeanings": [
+        "go to the store"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "buy groceries",
+        "buy milk",
+        "run errands"
+      ],
+      "notes": "Do not infer shopping list from store alone."
+    },
+    {
+      "id": "inference_eat_food_only",
+      "category": "inference_trap",
+      "transcriptVariants": [
+        "Eat food.",
+        "Uh, eat food today.",
+        "I need to eat lunch.",
+        "Put eat food as a thing.",
+        "Honestly just eat a meal."
+      ],
+      "expectedSelectedMeanings": [
+        "eat food"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "prepare dinner",
+        "cook meal",
+        "meal prep",
+        "grocery shop"
+      ],
+      "notes": "Do not infer cooking or shopping from eat food."
+    },
+    {
+      "id": "inference_doctor",
+      "category": "inference_trap",
+      "transcriptVariants": [
+        "Call the doctor.",
+        "Uh call my doctor.",
+        "I need to call the doctor today.",
+        "Call the doctor office.",
+        "Put call doctor."
+      ],
+      "expectedSelectedMeanings": [
+        "call the doctor"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "schedule appointment",
+        "go to doctor",
+        "refill prescription"
+      ],
+      "notes": "Calling != scheduling != visiting; preserve stated action."
+    },
+    {
       "id": "ramble_two_clear_tasks",
       "category": "ramble",
       "transcriptVariants": [
@@ -168,6 +409,190 @@
         "reduce stress"
       ],
       "notes": "Filler ignored; two explicit tasks remain."
+    },
+    {
+      "id": "ramble_three_clear_tasks",
+      "category": "ramble",
+      "transcriptVariants": [
+        "Um okay so today I need to ship the build, reply to Nora, and clean my desk. That's it.",
+        "Lots of stuff, but only three: ship build, reply to Nora, clean desk.",
+        "I guess the three are ship the build, reply to Nora, and clean the desk.",
+        "Ship the app build. Reply to Nora. Clean desk. The rest can wait.",
+        "For focus today: ship build, reply to Nora, clean my desk."
+      ],
+      "expectedSelectedMeanings": [
+        "ship the build",
+        "reply to Nora",
+        "clean desk"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "prepare release notes",
+        "organize office",
+        "message team"
+      ],
+      "notes": "Three explicit tasks amid filler."
+    },
+    {
+      "id": "vague_taxes",
+      "category": "vague",
+      "transcriptVariants": [
+        "Figure out taxes.",
+        "Uh, deal with taxes.",
+        "I need to handle tax stuff today.",
+        "Put taxes as one thing, I know it's vague.",
+        "Work on taxes for an hour."
+      ],
+      "expectedSelectedMeanings": [
+        "taxes"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "file tax return",
+        "call accountant",
+        "gather receipts"
+      ],
+      "notes": "Preserve vague task as stated; do not over-specify."
+    },
+    {
+      "id": "vague_apartment",
+      "category": "vague",
+      "transcriptVariants": [
+        "Deal with apartment stuff.",
+        "Um, handle the apartment situation.",
+        "I need to work on apartment things today.",
+        "Apartment stuff, that's one of the things.",
+        "Figure out the apartment issue."
+      ],
+      "expectedSelectedMeanings": [
+        "apartment"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "call landlord",
+        "pay rent",
+        "clean apartment"
+      ],
+      "notes": "Preserve vague apartment commitment as stated."
+    },
+    {
+      "id": "substeps_launch_email",
+      "category": "subtasks",
+      "transcriptVariants": [
+        "For the launch email, write the subject line, draft the body, and send it.",
+        "Launch email: subject line, body, send it.",
+        "I need to finish the launch email, like subject, body, and send.",
+        "Work on launch email: write subject, draft body, send.",
+        "The thing is finish launch email. Steps are subject, body, send."
+      ],
+      "expectedSelectedMeanings": [
+        "finish launch email"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "write subject line",
+        "draft body",
+        "send email"
+      ],
+      "notes": "Substeps collapse under named parent task."
+    },
+    {
+      "id": "separate_not_substeps",
+      "category": "subtasks",
+      "transcriptVariants": [
+        "Write launch email, call Sam, and pay rent.",
+        "Uh, launch email, call Sam, pay rent.",
+        "I need to write the launch email. Also call Sam. Also pay rent.",
+        "Three things: write launch email, call Sam, pay rent.",
+        "Write the launch email, call Sam, pay rent, that's all."
+      ],
+      "expectedSelectedMeanings": [
+        "write launch email",
+        "call Sam",
+        "pay rent"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "send launch email",
+        "schedule with Sam"
+      ],
+      "notes": "Three peer tasks; don't merge or invent send/schedule."
+    },
+    {
+      "id": "future_tomorrow_exclude",
+      "category": "future",
+      "transcriptVariants": [
+        "Tomorrow I need to call Sam, but today I need to pay rent.",
+        "Uh tomorrow call Sam. Today pay rent.",
+        "Not today, but tomorrow I should call Sam. Today just pay rent.",
+        "Pay rent today. Call Sam tomorrow.",
+        "Today's thing is pay rent. Tomorrow is call Sam."
+      ],
+      "expectedSelectedMeanings": [
+        "pay rent"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "call Sam"
+      ],
+      "notes": "Future-day tasks excluded; today's task wins."
+    },
+    {
+      "id": "future_prepare_today",
+      "category": "future",
+      "transcriptVariants": [
+        "For tomorrow's meeting, prepare the notes today.",
+        "I need to prep notes today for tomorrow's meeting.",
+        "Prepare notes for the meeting tomorrow.",
+        "Uh, today, prep tomorrow's meeting notes.",
+        "Put prepare meeting notes for tomorrow."
+      ],
+      "expectedSelectedMeanings": [
+        "prepare meeting notes"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "attend meeting",
+        "schedule meeting"
+      ],
+      "notes": "Prep-today-for-tomorrow is a today task."
+    },
+    {
+      "id": "negative_no_twitter",
+      "category": "negative",
+      "transcriptVariants": [
+        "Don't scroll Twitter.",
+        "Uh, do not scroll Twitter today.",
+        "My thing is don't open Twitter.",
+        "Stay off Twitter.",
+        "Avoid Twitter until tonight."
+      ],
+      "expectedSelectedMeanings": [
+        "avoid Twitter"
+      ],
+      "expectedExtraMeanings": [],
+      "expectedOverflow": false,
+      "expectsNoDraft": false,
+      "forbiddenMeanings": [
+        "use social media less generally",
+        "delete Twitter",
+        "focus on work"
+      ],
+      "notes": "Negative commitments are valid tasks when explicitly stated. Accept any negative phrasing around Twitter (don't scroll, stay off, avoid, don't open)."
     }
   ]
 }

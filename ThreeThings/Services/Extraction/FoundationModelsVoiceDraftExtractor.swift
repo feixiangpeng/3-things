@@ -36,19 +36,69 @@ struct FoundationModelsVoiceDraftExtractor: VoiceDraftExtracting {
         let session = LanguageModelSession(model: model)
 
         let prompt = """
-        You help the user pick 1-3 focus tasks for TODAY from a voice transcript (English).
+        Extract today's focus tasks from a voice transcript. Output ONE JSON object only.
 
-        Rules:
-        - If the transcript is just a greeting, microphone test, filler, or has no explicit task/commitment, set containsActionableTasks to false and return empty arrays.
-        - Never invent tasks that are not grounded in the transcript.
-        - Each task is concise (under 100 characters), starts with an imperative verb when possible.
-        - Preserve the user's spoken order when choosing the top tasks.
-        - De-duplicate near-duplicates.
-        - Put additional distinct actionable items in extraCandidates.
-        - Set detectedMoreThanThree true if there are more than three distinct actionable tasks.
+        WHAT GOES IN EACH FIELD:
+        - selectedTasks: the FIRST 1, 2, or 3 tasks the user mentioned for TODAY, IN THE ORDER THEY SAID THEM. Max 3. Do NOT reorder by priority, importance, or type.
+        - extraCandidates: tasks 4, 5, ... ONLY if more than 3 distinct surviving tasks. Otherwise [].
+        - detectedMoreThanThree: true iff >3 surviving distinct tasks.
+        - containsActionableTasks: false ONLY for filler/mic-test/greeting. Do NOT set false just because tasks are phrased informally.
 
-        Transcript:
-        \(trimmed)
+        CRITICAL: extraCandidates is NEVER for cancelled tasks, duplicate wordings, or things you are unsure about. Those simply DO NOT appear anywhere in the output.
+
+        PROCESS (do not show your work):
+        1. List every task the user actually said, in spoken order. Number them 1, 2, 3, 4...
+        2. DELETE cancelled tasks: any task immediately before phrases like "never mind", "wait never mind", "scratch that", "actually no", "wait no", "cancel that", "skip X", "not X Y instead" — gone, not in any field.
+        3. DELETE duplicate wordings: "email Sam" and "send Sam an email" mean the same action — keep the cleanest wording ONCE.
+        4. DELETE future-day tasks: any task framed with "tomorrow", "next week", "next month", "later", "not today", or "another day" is gone. This applies even if spoken first. KEEP tasks framed with "today" or with no time frame.
+        5. Count what remains. If ≤3, selectedTasks=all, extraCandidates=[]. If >3, selectedTasks=tasks 1, 2, 3 IN ORDER, extraCandidates=tasks 4, 5, etc.
+
+        VAGUE BUT STATED ARE VALID TASKS:
+        - "Deal with taxes", "handle tax stuff" — keep AS STATED. These ARE tasks. ALWAYS set containsActionableTasks=true when there is an explicit task or commitment, even if vaguely phrased.
+
+        ALSO:
+        - No inference. "Call the doctor" ≠ "schedule appointment". Keep vague tasks vague.
+        - "Don't X" / "stay off X" / "avoid X" — VALID task, keep the phrasing.
+        - Substeps under a named parent collapse to the parent ("launch email: subject, body, send" → "finish launch email").
+
+        EXAMPLES:
+
+        Transcript: Write the report, actually no, write the brief.
+        Output: selectedTasks=["write the brief"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Call Bob, wait never mind, call Alice.
+        Output: selectedTasks=["call Alice"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Pay rent, send Jamie the email, email Jamie about the thing.
+        Output: selectedTasks=["pay rent","email Jamie"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Email Sam, pay rent, book dentist, call mom.
+        Output: selectedTasks=["email Sam","pay rent","book dentist"], extraCandidates=["call mom"], detectedMoreThanThree=true
+
+        Transcript: Task A, task B, task C, task D, task E, task F.
+        Output: selectedTasks=["task A","task B","task C"], extraCandidates=["task D","task E","task F"], detectedMoreThanThree=true
+
+        Transcript: Tomorrow call Mark. Today pay the bills.
+        Output: selectedTasks=["pay the bills"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Uh tomorrow call Sam. Today pay rent.
+        Output: selectedTasks=["pay rent"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Handle the tax situation today.
+        Output: selectedTasks=["handle the tax situation"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: For the newsletter, write the headline, draft the copy, and send.
+        Output: selectedTasks=["finish the newsletter"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Don't open Instagram today.
+        Output: selectedTasks=["don't open Instagram"], extraCandidates=[], detectedMoreThanThree=false
+
+        Transcript: Hello hello, just testing.
+        Output: containsActionableTasks=false, selectedTasks=[], extraCandidates=[], detectedMoreThanThree=false
+
+        Now do this one.
+
+        Transcript: \(trimmed)
         """
 
         let response = try await session.respond(to: prompt, generating: GeneratedVoiceDraft.self)

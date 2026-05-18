@@ -52,7 +52,14 @@ struct HeuristicVoiceDraftExtractor: VoiceDraftExtracting {
 }
 
 enum VoiceDraftPostProcessor {
-    /// Normalizes model / heuristic output into a `VoiceExtractionDraft` with caps, deduping, and overflow rules.
+    /// Normalizes model / heuristic output into a `VoiceExtractionDraft`. Applies deterministic
+    /// repair steps that complement the prompt:
+    ///   1. Trim, length-cap, and exact-lowercase dedup within selected and extras.
+    ///   2. Semantic dedup: drop extras that share substantial tokens with an already-selected task
+    ///      ("send Sam an email" duplicates "email Sam") via Jaccard ≥ 0.55.
+    ///   3. Promote extras into selected when selected has room (model often under-fills selected).
+    ///   4. Cap selected at 3, pushing excess to extras.
+    ///   5. Recompute overflow as (extras non-empty OR original raw selected > 3).
     static func buildDraft(
         selectedTasks: [String],
         extraCandidates: [String],
@@ -65,34 +72,53 @@ enum VoiceDraftPostProcessor {
             throw VoiceDraftExtractionError.emptyModelOutput
         }
 
+        // 1. Clean + exact-dedup selected.
         var selected: [String] = []
-        var seen = Set<String>()
-
+        var seenLowercase = Set<String>()
         for raw in selectedTasks {
             let text = String(raw.prefix(100)).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !text.isEmpty else { continue }
             let key = text.lowercased()
-            guard !seen.contains(key) else { continue }
-            seen.insert(key)
+            guard !seenLowercase.contains(key) else { continue }
+            // Drop if semantically duplicates an already-kept selected item.
+            if selected.contains(where: { isSemanticDuplicate($0, text) }) { continue }
+            seenLowercase.insert(key)
             selected.append(text)
-            if selected.count == 3 { break }
         }
 
-        var extras = extraCandidates
-            .map { String($0.prefix(100)).trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-
-        extras = extras.filter { candidate in
-            let key = candidate.lowercased()
-            guard !seen.contains(key) else { return false }
-            seen.insert(key)
-            return true
+        // 2. Clean + dedup extras against selected and each other.
+        var extras: [String] = []
+        for raw in extraCandidates {
+            let text = String(raw.prefix(100)).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { continue }
+            let key = text.lowercased()
+            if seenLowercase.contains(key) { continue }
+            if selected.contains(where: { isSemanticDuplicate($0, text) }) { continue }
+            if extras.contains(where: { isSemanticDuplicate($0, text) }) { continue }
+            seenLowercase.insert(key)
+            extras.append(text)
         }
 
-        var overflow = detectedMoreThanThree || !extras.isEmpty
+        // 3. Promote extras → selected if selected has room.
+        while selected.count < 3, !extras.isEmpty {
+            let candidate = extras.removeFirst()
+            if selected.contains(where: { isSemanticDuplicate($0, candidate) }) { continue }
+            selected.append(candidate)
+        }
 
-        // If we still have more raw selected items than we kept, treat as overflow.
+        // 4. Cap selected at 3; overflow into extras (preserve order).
+        if selected.count > 3 {
+            let overflowItems = Array(selected[3...])
+            selected = Array(selected[..<3])
+            extras = overflowItems + extras
+        }
+
+        // 5. Recompute overflow.
+        var overflow = !extras.isEmpty
         if selectedTasks.filter({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }).count > 3 {
+            overflow = true
+        }
+        if detectedMoreThanThree, !extras.isEmpty {
             overflow = true
         }
 
@@ -106,6 +132,39 @@ enum VoiceDraftPostProcessor {
             detectedMoreThanThree: overflow,
             cleanedTranscript: cleaned
         )
+    }
+
+    /// True when two task strings share enough meaningful tokens (Jaccard ≥ 0.55) that they
+    /// represent the same action — e.g. "email Sam" vs "send Sam an email".
+    static func isSemanticDuplicate(_ a: String, _ b: String) -> Bool {
+        let ta = meaningTokens(a)
+        let tb = meaningTokens(b)
+        guard ta.count >= 2, tb.count >= 2 else {
+            // Single-meaningful-token tasks fall back to exact normalized match.
+            return normalizedTokens(a) == normalizedTokens(b)
+        }
+        let inter = ta.intersection(tb)
+        guard inter.count >= 2 else { return false }
+        let union = ta.union(tb)
+        return Double(inter.count) / Double(union.count) >= 0.55
+    }
+
+    /// Lowercase token set, stop-words and short particles removed.
+    private static func meaningTokens(_ text: String) -> Set<String> {
+        let folded = text.folding(options: .diacriticInsensitive, locale: Locale(identifier: "en_US_POSIX"))
+        let lowered = folded.lowercased()
+        let allowed = CharacterSet.alphanumerics.union(.whitespaces)
+        let scrubbed = String(String.UnicodeScalarView(lowered.unicodeScalars.map { allowed.contains($0) ? $0 : " " }))
+        let stop: Set<String> = ["a", "an", "the", "to", "for", "of", "and", "or", "with", "on", "in", "at", "by", "is", "am", "are", "be"]
+        return Set(scrubbed.split(separator: " ").map(String.init).filter { $0.count > 1 && !stop.contains($0) })
+    }
+
+    private static func normalizedTokens(_ text: String) -> String {
+        let folded = text.folding(options: .diacriticInsensitive, locale: Locale(identifier: "en_US_POSIX"))
+        let lowered = folded.lowercased()
+        let allowed = CharacterSet.alphanumerics.union(.whitespaces)
+        let scrubbed = String(String.UnicodeScalarView(lowered.unicodeScalars.map { allowed.contains($0) ? $0 : " " }))
+        return scrubbed.split(separator: " ").map(String.init).filter { !$0.isEmpty }.joined(separator: " ")
     }
 }
 
