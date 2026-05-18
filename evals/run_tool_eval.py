@@ -9,7 +9,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 
 from live_replay import LiveStep, live_steps_for_case
-from runner import DIAGNOSTIC_SUBSET, EXPANDED_SUBSET, FIXTURE, RunOutcome, _outcome
+from runner import DIAGNOSTIC_SUBSET, EDGE_CASE_SUBSET, EXPANDED_SUBSET, FULL_LIVE_SUBSET, FIXTURE, RunOutcome, _outcome
 from scorer import score
 from step_scorer import expectations_for_case, score_step
 from tool_extractor import GroqToolExtractor, ToolExtractorConfig
@@ -170,7 +170,11 @@ def run_one_case(
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--subset", choices=["diagnostic", "expanded", "full"], default="diagnostic")
+    ap.add_argument(
+        "--subset",
+        choices=["diagnostic", "expanded", "edge", "full_live", "full"],
+        default="diagnostic",
+    )
     ap.add_argument("--cases", nargs="*", default=None)
     ap.add_argument("--variants", type=int, default=1)
     ap.add_argument("--out", type=pathlib.Path, default=REPO / "reports" / "tools_diagnostic.json")
@@ -195,6 +199,12 @@ def main() -> int:
         cases = [c for c in cases if c["id"] in ids]
     elif args.subset == "expanded":
         ids = set(EXPANDED_SUBSET)
+        cases = [c for c in cases if c["id"] in ids]
+    elif args.subset == "edge":
+        ids = set(EDGE_CASE_SUBSET)
+        cases = [c for c in cases if c["id"] in ids]
+    elif args.subset == "full_live":
+        ids = set(FULL_LIVE_SUBSET)
         cases = [c for c in cases if c["id"] in ids]
     if args.cases:
         want = set(args.cases)

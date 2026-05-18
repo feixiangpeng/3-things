@@ -95,6 +95,39 @@ class StepScorerTests(unittest.TestCase):
             exps = expectations_for_case(case)
             self.assertEqual(len(exps), len(snaps), case_id)
 
+    def test_forget_everything_final_step_no_draft(self) -> None:
+        exps = expectations_for_case(self.cases["correction_forget_everything"])
+        r = score_step(
+            exps[-1],
+            selected=[],
+            extras=[],
+            calls=[{"tool": "clear_draft"}],
+        )
+        self.assertTrue(r.passed)
+
+    def test_exactly_three_no_overflow_flag(self) -> None:
+        exps = expectations_for_case(self.cases["literal_exactly_three_no_overflow"])
+        r = score_step(
+            exps[-1],
+            selected=["email Sam", "pay rent", "buy milk"],
+            extras=[],
+            calls=[],
+        )
+        self.assertTrue(r.passed)
+        self.assertFalse(exps[-1]["expectedOverflow"])
+
+    def test_no_task_then_task_step_zero_empty(self) -> None:
+        exps = expectations_for_case(self.cases["no_task_then_one_task"])
+        r0 = score_step(exps[0], selected=[], extras=[], calls=[{"tool": "no_action"}])
+        self.assertTrue(r0.passed)
+        r1 = score_step(
+            exps[1],
+            selected=["email Sam"],
+            extras=[],
+            calls=[{"tool": "add_task", "text": "Email Sam"}],
+        )
+        self.assertTrue(r1.passed)
+
 
 if __name__ == "__main__":
     unittest.main()

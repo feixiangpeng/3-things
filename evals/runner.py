@@ -52,6 +52,23 @@ EXPANDED_SUBSET = DIAGNOSTIC_SUBSET + [
     "negative_no_twitter",               # negative commitment
 ]
 
+# Edge cases added for multi-step live eval + SFT dataset (beyond expanded).
+EDGE_CASE_SUBSET = [
+    "correction_forget_everything",
+    "correction_park_to_store_direct",
+    "overflow_then_drop_fourth",
+    "no_task_then_one_task",
+    "duplicate_pay_rent_thrice",
+    "literal_exactly_three_no_overflow",
+    "negative_plus_positive",
+    "inference_doctor_ramble",
+    "substeps_incremental_launch",
+    "vague_taxes_not_specific",
+    "future_intraday_correction",
+]
+
+FULL_LIVE_SUBSET = sorted(set(EXPANDED_SUBSET + EDGE_CASE_SUBSET))
+
 
 @dataclass
 class RunOutcome:

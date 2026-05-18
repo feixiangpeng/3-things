@@ -71,4 +71,22 @@ cd evals && .venv/bin/python run_tool_eval.py --subset diagnostic --variants 1 -
 
 # Multi-step Groq eval with per-step + final scoring:
 .venv/bin/python run_tool_eval.py --subset diagnostic --variants 1 --score-steps --capture-trace --out reports/tools_steps_diagnostic.json
+
+# Enrich fixture with liveSnapshots + liveStepExpectations (36 cases):
+.venv/bin/python enrich_fixture_live.py --fixture ../ThreeThings/Fixtures/voice_extraction_cases.json
+
+# Full live subset (expanded + 11 edge cases, ~23 cases):
+.venv/bin/python run_tool_eval.py --subset full_live --variants 1 --score-steps --out reports/tools_full_live.json
+
+# Edge-case subset only:
+.venv/bin/python run_tool_eval.py --subset edge --variants 1 --score-steps --out reports/tools_edge.json
+
+# Export SFT JSONL (76 multi-step rounds from fixture labels):
+.venv/bin/python export_sft_dataset.py --out datasets/voice_tools_sft.jsonl
+
+# Merge golden traces from passing Groq runs:
+.venv/bin/python export_sft_dataset.py --from-traces traces/ --out datasets/voice_tools_sft_traces.jsonl
+
+# All offline tests (fixture integrity, step scorer, SFT export):
+.venv/bin/python -m unittest discover -q -p 'test_*.py'
 ```
