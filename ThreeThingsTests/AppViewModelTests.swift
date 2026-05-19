@@ -287,6 +287,31 @@ final class AppViewModelTests: XCTestCase {
         }
     }
 
+    func testRemoveTextTaskShiftsRemainingRows() {
+        let viewModel = makeViewModel()
+        viewModel.returnToTextEntry()
+        viewModel.updateTaskText(at: 0, text: "First")
+        viewModel.revealNextTextTaskSlot()
+        viewModel.updateTaskText(at: 1, text: "Second")
+
+        viewModel.removeTextTask(at: 0)
+
+        XCTAssertEqual(viewModel.textEntryVisibleSlotCount, 1)
+        XCTAssertEqual(viewModel.plan.tasks[0].text, "Second")
+        XCTAssertTrue(viewModel.plan.tasks[1].text.isEmpty)
+    }
+
+    func testRemoveTextTaskRequiresMoreThanOneVisibleRow() {
+        let viewModel = makeViewModel()
+        viewModel.returnToTextEntry()
+        viewModel.updateTaskText(at: 0, text: "Only one")
+
+        viewModel.removeTextTask(at: 0)
+
+        XCTAssertEqual(viewModel.textEntryVisibleSlotCount, 1)
+        XCTAssertEqual(viewModel.plan.tasks[0].text, "Only one")
+    }
+
     func testReturnToTextEntryShowsOneTaskSlot() {
         let viewModel = makeViewModel()
         viewModel.returnToTextEntry()

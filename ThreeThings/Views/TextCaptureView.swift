@@ -74,24 +74,37 @@ struct TextCaptureView: View {
                 Spacer()
 
                 if viewModel.textEntryVisibleSlotCount > 1 {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 12) {
                         Button {
-                            viewModel.moveTask(from: index, to: index - 1)
+                            viewModel.removeTextTask(at: index)
                         } label: {
-                            Image(systemName: "chevron.up")
+                            Image(systemName: "minus.circle.fill")
+                                .font(.body)
+                                .symbolRenderingMode(.hierarchical)
                         }
-                        .disabled(index == 0)
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(ThemePalette.muted)
+                        .accessibilityLabel("Remove thing \(index + 1)")
 
-                        Button {
-                            viewModel.moveTask(from: index, to: index + 1)
-                        } label: {
-                            Image(systemName: "chevron.down")
+                        HStack(spacing: 8) {
+                            Button {
+                                viewModel.moveTask(from: index, to: index - 1)
+                            } label: {
+                                Image(systemName: "chevron.up")
+                            }
+                            .disabled(index == 0)
+
+                            Button {
+                                viewModel.moveTask(from: index, to: index + 1)
+                            } label: {
+                                Image(systemName: "chevron.down")
+                            }
+                            .disabled(index >= viewModel.textEntryVisibleSlotCount - 1)
                         }
-                        .disabled(index >= viewModel.textEntryVisibleSlotCount - 1)
+                        .font(.caption)
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(ThemePalette.muted)
                     }
-                    .font(.caption)
-                    .buttonStyle(.borderless)
-                    .foregroundStyle(ThemePalette.muted)
                 }
             }
 

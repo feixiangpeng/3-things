@@ -232,6 +232,37 @@ final class AppViewModel: ObservableObject {
         textEntryVisibleSlotCount += 1
     }
 
+    /// Removes a visible text-entry row, shifts later tasks up, and hides the last slot (minimum one row remains).
+    func removeTextTask(at index: Int) {
+        guard canEditPlan, selectedInputMode == .text else { return }
+        guard textEntryVisibleSlotCount > 1 else { return }
+        guard plan.tasks.indices.contains(index), index < textEntryVisibleSlotCount else { return }
+
+        let lastVisible = textEntryVisibleSlotCount - 1
+        if index < lastVisible {
+            for slot in index..<lastVisible {
+                plan.tasks[slot].text = plan.tasks[slot + 1].text
+                plan.tasks[slot].isCompleted = false
+            }
+        }
+        plan.tasks[lastVisible].text = ""
+        plan.tasks[lastVisible].isCompleted = false
+        textEntryVisibleSlotCount -= 1
+
+        for slot in textEntryVisibleSlotCount..<plan.tasks.count {
+            plan.tasks[slot].text = ""
+            plan.tasks[slot].isCompleted = false
+        }
+
+        normalizeDraftSortOrder()
+        if voiceDraft != nil {
+            userHasCustomizedVoicePlan = true
+            syncVoiceDraftFromPlan()
+        }
+        recomputeMomentum()
+        saveState()
+    }
+
     func syncTextEntryVisibleSlotsFromPlan() {
         let lastFilled = plan.tasks.lastIndex(where: { !normalized($0.text).isEmpty }) ?? -1
         let needed = max(1, min(3, lastFilled + 1))
