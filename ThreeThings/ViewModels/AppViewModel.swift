@@ -19,6 +19,8 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var isVoiceRecordingActive: Bool = false
     /// How many task fields to show in text entry (1–3); grows when the user taps “Add thing”.
     @Published private(set) var textEntryVisibleSlotCount: Int = 1
+    /// How many task fields to show in voice review (0–3); grows as extraction fills slots.
+    @Published private(set) var voiceReviewVisibleSlotCount: Int = 0
     /// Bumped when the root `ScrollView` should scroll to the top (e.g. replace-extra picker).
     @Published private(set) var scrollRootToTopToken: UInt = 0
 
@@ -196,6 +198,11 @@ final class AppViewModel: ObservableObject {
         !plan.isLocked
     }
 
+    /// True when voice review rows (tasks, extras, lock) should appear below the record control.
+    var showsVoiceTaskReview: Bool {
+        voiceDraft != nil
+    }
+
     var voiceFixtures: [MockVoiceDraftFixture] {
         MockVoiceDraftProvider.fixtures
     }
@@ -268,6 +275,45 @@ final class AppViewModel: ObservableObject {
         let lastFilled = plan.tasks.lastIndex(where: { !normalized($0.text).isEmpty }) ?? -1
         let needed = max(1, min(3, lastFilled + 1))
         textEntryVisibleSlotCount = max(textEntryVisibleSlotCount, needed)
+    }
+
+    func syncVoiceReviewVisibleSlotsFromPlan() {
+        guard voiceDraft != nil else {
+            voiceReviewVisibleSlotCount = 0
+            return
+        }
+        let lastFilled = plan.tasks.lastIndex(where: { !normalized($0.text).isEmpty }) ?? -1
+        let needed = max(1, min(3, lastFilled + 1))
+        voiceReviewVisibleSlotCount = max(voiceReviewVisibleSlotCount, needed)
+    }
+
+    /// Removes a visible voice-review row, shifts later tasks up, and hides the last slot.
+    func removeVoiceReviewTask(at index: Int) {
+        guard canEditPlan, selectedInputMode == .voice, voiceDraft != nil else { return }
+        guard voiceReviewVisibleSlotCount > 1 else { return }
+        guard plan.tasks.indices.contains(index), index < voiceReviewVisibleSlotCount else { return }
+
+        let lastVisible = voiceReviewVisibleSlotCount - 1
+        if index < lastVisible {
+            for slot in index..<lastVisible {
+                plan.tasks[slot].text = plan.tasks[slot + 1].text
+                plan.tasks[slot].isCompleted = false
+            }
+        }
+        plan.tasks[lastVisible].text = ""
+        plan.tasks[lastVisible].isCompleted = false
+        voiceReviewVisibleSlotCount -= 1
+
+        for slot in voiceReviewVisibleSlotCount..<plan.tasks.count {
+            plan.tasks[slot].text = ""
+            plan.tasks[slot].isCompleted = false
+        }
+
+        normalizeDraftSortOrder()
+        userHasCustomizedVoicePlan = true
+        syncVoiceDraftFromPlan()
+        recomputeMomentum()
+        saveState()
     }
 
     func moveTask(from sourceIndex: Int, to destinationIndex: Int) {
@@ -364,6 +410,7 @@ final class AppViewModel: ObservableObject {
         }
 
         selectedInputMode = .voice
+        syncVoiceReviewVisibleSlotsFromPlan()
         recomputeMomentum()
         saveState()
     }
@@ -427,6 +474,7 @@ final class AppViewModel: ObservableObject {
         voiceDraft = nil
         plan = DailyPlan.empty(for: plan.focusDayID)
         textEntryVisibleSlotCount = 1
+        voiceReviewVisibleSlotCount = 0
         selectedInputMode = .text
         extractionStatus = ""
         recomputeMomentum()
@@ -685,6 +733,7 @@ final class AppViewModel: ObservableObject {
 
     private func clearVoiceCaptureDraftForNoTasks() {
         voiceDraft = nil
+        voiceReviewVisibleSlotCount = 0
         plan.source = .voice
         plan.extras = []
         plan.detectedMoreThanThree = false
@@ -703,6 +752,7 @@ final class AppViewModel: ObservableObject {
             plan = DailyPlan.empty(for: currentFocusDayID)
             selectedInputMode = .voice
             voiceDraft = nil
+            voiceReviewVisibleSlotCount = 0
         }
 
         pruneMomentumWindow()

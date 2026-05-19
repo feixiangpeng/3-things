@@ -6,6 +6,10 @@ struct ExtractionReviewView: View {
     @State private var isShowingLockConfirmation = false
     @State private var pendingReplaceExtraIndex: Int?
 
+    private var visibleSlotIndices: Range<Int> {
+        0..<viewModel.voiceReviewVisibleSlotCount
+    }
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
@@ -34,11 +38,11 @@ struct ExtractionReviewView: View {
                viewModel.plan.extras.indices.contains(extraIdx) {
                 ReplaceThingPickerOverlay(
                     extraPreview: viewModel.plan.extras[extraIdx],
-                    taskLines: (0..<3).map { viewModel.plan.tasks[$0].text },
+                    taskLines: (0..<viewModel.voiceReviewVisibleSlotCount).map { viewModel.plan.tasks[$0].text },
                     onPick: { slot in
                         let pendingExtra = pendingReplaceExtraIndex
                         if let e = pendingExtra,
-                           (0..<3).contains(slot),
+                           (0..<viewModel.voiceReviewVisibleSlotCount).contains(slot),
                            viewModel.plan.extras.indices.contains(e) {
                             viewModel.replaceSelectedTask(at: slot, withExtraAt: e)
                         }
@@ -58,6 +62,9 @@ struct ExtractionReviewView: View {
                 pendingReplaceExtraIndex = nil
             }
         }
+        .onAppear {
+            viewModel.syncVoiceReviewVisibleSlotsFromPlan()
+        }
         .confirmationDialog(
             "Lock today's things?",
             isPresented: $isShowingLockConfirmation,
@@ -73,20 +80,17 @@ struct ExtractionReviewView: View {
         }
     }
 
+    @ViewBuilder
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             if viewModel.isVoiceRecordingActive {
-                Text("Live draft — still listening")
+                Text("Still listening…")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(ThemePalette.muted)
             }
 
-            Text(viewModel.plan.detectedMoreThanThree ? "Pick what matters" : "Review voice draft")
-                .font(.title3.bold())
-                .foregroundStyle(viewModel.plan.detectedMoreThanThree ? ThemePalette.overflow : ThemePalette.primary)
-
             if viewModel.plan.detectedMoreThanThree {
-                Text("I heard more than 3 things. Pick what actually matters today.")
+                Text("I heard more than 3 things. Pick what matters today.")
                     .font(.footnote)
                     .foregroundStyle(ThemePalette.muted)
                     .padding(10)
@@ -101,29 +105,43 @@ struct ExtractionReviewView: View {
             if let cleanedTranscript = viewModel.voiceDraft?.cleanedTranscript,
                !cleanedTranscript.isEmpty {
                 Text(cleanedTranscript)
-                    .font(.footnote)
-                    .foregroundStyle(Color.primary)
-                    .themeCard(cornerRadius: 12, padding: 10)
+                    .font(.caption)
+                    .foregroundStyle(ThemePalette.muted)
+                    .lineLimit(3)
             }
         }
     }
 
     private var selectedTasks: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Selected")
-                .font(.caption)
-                .foregroundStyle(ThemePalette.muted)
-                .textCase(.uppercase)
-                .tracking(0.5)
+            ForEach(visibleSlotIndices, id: \.self) { index in
+                taskField(index: index)
+            }
+        }
+    }
 
-            ForEach(0..<3, id: \.self) { index in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("Thing \(index + 1)")
-                            .font(.caption2)
-                            .foregroundStyle(ThemePalette.muted)
+    @ViewBuilder
+    private func taskField(index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Thing \(index + 1)")
+                    .font(.caption2)
+                    .foregroundStyle(ThemePalette.muted)
 
-                        Spacer()
+                Spacer()
+
+                if viewModel.voiceReviewVisibleSlotCount > 1 {
+                    HStack(spacing: 12) {
+                        Button {
+                            viewModel.removeVoiceReviewTask(at: index)
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.body)
+                                .symbolRenderingMode(.hierarchical)
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(ThemePalette.muted)
+                        .accessibilityLabel("Remove thing \(index + 1)")
 
                         HStack(spacing: 8) {
                             Button {
@@ -138,31 +156,31 @@ struct ExtractionReviewView: View {
                             } label: {
                                 Image(systemName: "chevron.down")
                             }
-                            .disabled(index == 2)
+                            .disabled(index >= viewModel.voiceReviewVisibleSlotCount - 1)
                         }
                         .font(.caption)
                         .buttonStyle(.borderless)
                         .foregroundStyle(ThemePalette.muted)
                     }
-
-                    TextField(
-                        "What matters most?",
-                        text: Binding(
-                            get: { viewModel.plan.tasks[index].text },
-                            set: { viewModel.updateTaskText(at: index, text: $0) }
-                        ),
-                        axis: .vertical
-                    )
-                    .textFieldStyle(.plain)
-                    .lineLimit(3...8)
-                    .themeInputField(cornerRadius: 12, isInvalid: viewModel.duplicateTaskIndexes.contains(index))
-
-                    let count = viewModel.characterCount(at: index)
-                    Text("\(count)/100")
-                        .font(.caption2)
-                        .foregroundStyle(count > 70 ? ThemePalette.warning : ThemePalette.muted)
                 }
             }
+
+            TextField(
+                "What matters most?",
+                text: Binding(
+                    get: { viewModel.plan.tasks[index].text },
+                    set: { viewModel.updateTaskText(at: index, text: $0) }
+                ),
+                axis: .vertical
+            )
+            .textFieldStyle(.plain)
+            .lineLimit(3...8)
+            .themeInputField(cornerRadius: 12, isInvalid: viewModel.duplicateTaskIndexes.contains(index))
+
+            let count = viewModel.characterCount(at: index)
+            Text("\(count)/100")
+                .font(.caption2)
+                .foregroundStyle(count > 70 ? ThemePalette.warning : ThemePalette.muted)
         }
     }
 
@@ -252,11 +270,6 @@ struct ExtractionReviewView: View {
             }
             .buttonStyle(ThemePrimaryProminentButtonStyle())
             .disabled(!viewModel.canPresentLockConfirmation)
-
-            Button("Start Over With Typing") {
-                viewModel.returnToTextEntry()
-            }
-            .buttonStyle(ThemeSecondaryOutlineButtonStyle())
         }
     }
 }

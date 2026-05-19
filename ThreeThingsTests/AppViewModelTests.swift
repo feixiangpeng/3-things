@@ -312,6 +312,35 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.plan.tasks[0].text, "Only one")
     }
 
+    func testVoiceReviewVisibleSlotsGrowWithExtractedTasks() {
+        let viewModel = makeViewModel()
+        XCTAssertEqual(viewModel.voiceReviewVisibleSlotCount, 0)
+        XCTAssertFalse(viewModel.showsVoiceTaskReview)
+
+        viewModel.generateMockVoiceDraft()
+
+        XCTAssertTrue(viewModel.showsVoiceTaskReview)
+        XCTAssertGreaterThanOrEqual(viewModel.voiceReviewVisibleSlotCount, 1)
+        XCTAssertLessThanOrEqual(viewModel.voiceReviewVisibleSlotCount, 3)
+    }
+
+    func testRemoveVoiceReviewTaskShiftsRemainingRows() {
+        let viewModel = makeViewModel()
+        viewModel.startVoiceDraftReview(from: VoiceExtractionDraft(
+            selectedTasks: ["One", "Two"],
+            extraCandidates: [],
+            detectedMoreThanThree: false,
+            cleanedTranscript: "One and two."
+        ))
+
+        XCTAssertEqual(viewModel.voiceReviewVisibleSlotCount, 2)
+
+        viewModel.removeVoiceReviewTask(at: 0)
+
+        XCTAssertEqual(viewModel.voiceReviewVisibleSlotCount, 1)
+        XCTAssertEqual(viewModel.plan.tasks[0].text, "Two")
+    }
+
     func testReturnToTextEntryShowsOneTaskSlot() {
         let viewModel = makeViewModel()
         viewModel.returnToTextEntry()

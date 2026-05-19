@@ -13,6 +13,7 @@ struct VoiceCaptureView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var speechManager: SpeechCaptureManager
     var layout: VoiceCaptureLayout = .standard
+    var recordButtonDiameter: CGFloat = 100
 
     var body: some View {
         Group {
@@ -145,7 +146,7 @@ struct VoiceCaptureView: View {
                 } label: {
                     Image(systemName: "stop.fill")
                 }
-                .buttonStyle(ThemeCircularRecordButtonStyle(isStop: true))
+                .buttonStyle(ThemeCircularRecordButtonStyle(isStop: true, diameter: recordButtonDiameter))
                 .disabled(speechManager.phase == .transcribing)
                 .accessibilityLabel("Stop recording")
             } else {
@@ -160,7 +161,7 @@ struct VoiceCaptureView: View {
                 } label: {
                     Image(systemName: "mic.fill")
                 }
-                .buttonStyle(ThemeCircularRecordButtonStyle())
+                .buttonStyle(ThemeCircularRecordButtonStyle(diameter: recordButtonDiameter))
                 .disabled(speechManager.phase == .requestingPermission || speechManager.phase == .transcribing)
                 .accessibilityLabel("Start recording")
             }

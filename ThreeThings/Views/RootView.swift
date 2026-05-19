@@ -17,10 +17,8 @@ struct RootView: View {
                         if viewModel.canEditPlan {
                             if viewModel.selectedInputMode == .text {
                                 textModeStack
-                            } else if viewModel.voiceDraft != nil {
-                                voiceDraftStack
                             } else {
-                                minimalVoiceHome
+                                voiceModeStack
                             }
                         } else {
                             LockedPlanView(viewModel: viewModel)
@@ -76,18 +74,19 @@ struct RootView: View {
             .accessibilityAddTraits(.isHeader)
     }
 
-    private var minimalVoiceHome: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 48)
+    private var voiceModeStack: some View {
+        VStack(alignment: .leading, spacing: 16) {
             VoiceCaptureView(
                 viewModel: viewModel,
                 speechManager: speechManager,
-                layout: .home
+                layout: .home,
+                recordButtonDiameter: viewModel.showsVoiceTaskReview ? 88 : 100
             )
-            Spacer(minLength: 48)
+
+            if viewModel.showsVoiceTaskReview {
+                ExtractionReviewView(viewModel: viewModel, speechManager: speechManager)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: 420)
     }
 
     private var textModeStack: some View {
@@ -100,19 +99,6 @@ struct RootView: View {
             .buttonStyle(ThemeSecondaryOutlineButtonStyle())
 
             TextCaptureView(viewModel: viewModel)
-                .themeSectionCard()
-        }
-    }
-
-    private var voiceDraftStack: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            VoiceCaptureView(
-                viewModel: viewModel,
-                speechManager: speechManager,
-                layout: .compact
-            )
-
-            ExtractionReviewView(viewModel: viewModel, speechManager: speechManager)
                 .themeSectionCard()
         }
     }
