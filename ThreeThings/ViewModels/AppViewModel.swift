@@ -38,6 +38,8 @@ final class AppViewModel: ObservableObject {
 
     private var lastLiveExtractionSource: String?
     private var liveScheduler: LiveExtractionScheduler
+    /// When true, the next final transcript from stop-recording is ignored (lock-while-recording).
+    private var suppressNextFinalTranscriptIngest = false
 
     init(
         defaults: UserDefaults = .standard,
@@ -403,6 +405,13 @@ final class AppViewModel: ObservableObject {
         isVoiceRecordingActive = active
     }
 
+    /// Ends live capture without scheduling a final model pass (used when locking during recording).
+    func prepareLockFromActiveVoiceCapture() {
+        suppressNextFinalTranscriptIngest = true
+        liveScheduler.cancelPending()
+        isExtracting = false
+    }
+
     func updateVoiceTranscriptSnapshot(_ transcript: String) {
         let clean = VoiceDraftSessionLogic.normalize(transcript)
         lastHeardTranscript = clean
@@ -413,6 +422,10 @@ final class AppViewModel: ObservableObject {
     func ingestFinalTranscript(_ transcript: String) async {
         let clean = VoiceDraftSessionLogic.normalize(transcript)
         lastHeardTranscript = clean
+        if suppressNextFinalTranscriptIngest {
+            suppressNextFinalTranscriptIngest = false
+            return
+        }
         await liveScheduler.ingestFinal(transcript)
     }
 

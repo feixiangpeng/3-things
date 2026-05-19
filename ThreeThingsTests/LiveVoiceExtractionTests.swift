@@ -79,6 +79,27 @@ final class LiveVoiceExtractionTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(extractor.callCount, 1)
     }
 
+    func testPrepareLockFromActiveVoiceCaptureSuppressesFinalIngest() async throws {
+        let extractor = CountingHeuristicExtractor()
+        let viewModel = AppViewModel(
+            defaults: defaults,
+            voiceDraftExtractor: extractor,
+            liveExtractionDebounceNanoseconds: 80_000_000
+        )
+        viewModel.selectedInputMode = .voice
+
+        viewModel.updateVoiceTranscriptSnapshot("one, two, three, four, five, six, seven, eight")
+        try await Task.sleep(nanoseconds: 200_000_000)
+        let countAfterLivePartial = extractor.callCount
+        XCTAssertEqual(countAfterLivePartial, 1)
+
+        viewModel.prepareLockFromActiveVoiceCapture()
+        await viewModel.ingestFinalTranscript("one, two, three, four, five, six, seven, eight, nine, ten, eleven")
+        try await Task.sleep(nanoseconds: 150_000_000)
+
+        XCTAssertEqual(extractor.callCount, countAfterLivePartial)
+    }
+
     func testStaleFlushResultIgnoredWhenTranscriptAdvances() async throws {
         let extractor = SlowHeuristicExtractor(delayNanoseconds: 200_000_000)
         let viewModel = AppViewModel(

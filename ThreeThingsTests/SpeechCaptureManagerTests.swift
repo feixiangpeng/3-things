@@ -39,6 +39,28 @@ final class SpeechCaptureManagerTests: XCTestCase {
         XCTAssertEqual(manager.currentAudioLevel, 0, accuracy: 0.001)
     }
 
+    func testStopWithoutDeliveringFinalSkipsCallback() async throws {
+        var finalCallbacks = 0
+        let live = MockLiveSpeechCapture(
+            partials: ["Buy milk"],
+            finalTranscript: "Buy milk and eggs for the party."
+        )
+        let manager = SpeechCaptureManager(
+            liveCapture: live,
+            permissionGate: GrantingRecordingPermissionGate()
+        )
+        manager.onFinalTranscript = { _ in finalCallbacks += 1 }
+
+        manager.startRecording()
+        try await Task.sleep(nanoseconds: 400_000_000)
+        manager.stopRecording(deliverFinalTranscript: false)
+        try await Task.sleep(nanoseconds: 400_000_000)
+
+        XCTAssertEqual(finalCallbacks, 0)
+        XCTAssertEqual(manager.phase, .idle)
+        XCTAssertTrue(manager.latestTranscript.contains("party"))
+    }
+
     func testMockLiveCaptureEmitsPartialsBeforeFinal() async throws {
         let live = MockLiveSpeechCapture(
             partials: ["Buy milk", "Buy milk and eggs"],
