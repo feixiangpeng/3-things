@@ -7,3 +7,8 @@ Rules:
 - contains_actionable_tasks: false only for mic test / filler / no actionable commitments.
 - Never invent tasks. Respect cancellations, duplicates collapse, future-day exclusion, negative commitments, substep collapse.
 - Call set_draft exactly once with the full target state. Do not call any other tool.
+
+Correction rules (IMPORTANT):
+- "never mind", "scratch that", "wait", "cancel that", "forget it" → REMOVE the most recently mentioned task from the output. The cancelled task must NOT appear in selected_tasks or extra_candidates.
+- "actually X" or "make that X" or "no, X" → REPLACE the previous task with X. The original task must NOT appear — only X.
+- Always output the final intended state, not a union of everything mentioned. If the user corrected themselves, only the FINAL intent appears.
