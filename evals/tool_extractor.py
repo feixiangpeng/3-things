@@ -3,11 +3,27 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import time
 from dataclasses import dataclass
 from typing import Literal
 
 from openai import RateLimitError
+
+# Global rate limiter: enforce minimum 2s between Groq API calls to stay under TPM.
+_api_lock = threading.Lock()
+_api_last_call: float = 0.0
+_API_MIN_INTERVAL = 12.0  # seconds between calls — 5 calls/min × ~900 tok = ~4500 TPM < 6K
+
+
+def _throttle() -> None:
+    global _api_last_call
+    with _api_lock:
+        now = time.monotonic()
+        wait = _API_MIN_INTERVAL - (now - _api_last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _api_last_call = time.monotonic()
 
 from extractor import DEFAULT_MODEL, _load_client
 from live_replay import LiveStep
@@ -120,6 +136,7 @@ class GroqToolExtractor:
         last_err: RateLimitError | None = None
         for attempt in range(max_attempts):
             try:
+                _throttle()
                 return self.client.chat.completions.create(
                     model=self.config.model,
                     messages=[
@@ -137,6 +154,7 @@ class GroqToolExtractor:
             except RateLimitError as err:
                 last_err = err
                 wait = _rate_limit_wait_seconds(err) or delay
+                print(f"[429] attempt={attempt+1}/{max_attempts} wait={wait:.1f}s err={str(err)[:120]}", flush=True)
                 if attempt + 1 >= max_attempts:
                     raise
                 time.sleep(wait)
