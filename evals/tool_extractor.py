@@ -147,7 +147,11 @@ class GroqToolExtractor:
                         {"role": "user", "content": user_msg},
                     ],
                     tools=groq_tools(self.config.tool_contract),
-                    tool_choice="required",
+                    tool_choice=(
+                        {"type": "function", "function": {"name": "set_draft"}}
+                        if self.config.tool_contract == "set_state"
+                        else "required"
+                    ),
                     temperature=self.config.temperature,
                     max_tokens=self.config.max_output_tokens,
                 )
