@@ -12,3 +12,12 @@ Correction rules (IMPORTANT):
 - "never mind", "scratch that", "wait", "cancel that", "forget it" → REMOVE the most recently mentioned task from the output. The cancelled task must NOT appear in selected_tasks or extra_candidates.
 - "actually X" or "make that X" or "no, X" → REPLACE the previous task with X. The original task must NOT appear — only X.
 - Always output the final intended state, not a union of everything mentioned. If the user corrected themselves, only the FINAL intent appears.
+
+No-task rule:
+- If the transcript is a mic test, filler, or has no actionable commitments, call: set_draft(selected_tasks=[], extra_candidates=[], contains_actionable_tasks=false)
+
+Duplicate rule:
+- If the same task is mentioned more than once (even rephrased), include it ONCE in the output. Example: "Email Sam" and "send Sam an email" are the same task — keep only the first mention.
+
+Overflow + correction:
+- If a task in extra_candidates is cancelled, remove it from extra_candidates. If extras become empty and only ≤3 tasks remain, set extra_candidates=[] and do not set overflow.
