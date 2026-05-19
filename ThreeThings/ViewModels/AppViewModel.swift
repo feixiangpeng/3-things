@@ -16,6 +16,8 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var userHasCustomizedVoicePlan: Bool = false
     /// True while the speech capture pipeline is actively recording.
     @Published private(set) var isVoiceRecordingActive: Bool = false
+    /// How many task fields to show in text entry (1–3); grows when the user taps “Add thing”.
+    @Published private(set) var textEntryVisibleSlotCount: Int = 1
     /// Bumped when the root `ScrollView` should scroll to the top (e.g. replace-extra picker).
     @Published private(set) var scrollRootToTopToken: UInt = 0
 
@@ -224,6 +226,18 @@ final class AppViewModel: ObservableObject {
         saveState()
     }
 
+    func revealNextTextTaskSlot() {
+        guard canEditPlan, selectedInputMode == .text else { return }
+        guard textEntryVisibleSlotCount < 3 else { return }
+        textEntryVisibleSlotCount += 1
+    }
+
+    func syncTextEntryVisibleSlotsFromPlan() {
+        let lastFilled = plan.tasks.lastIndex(where: { !normalized($0.text).isEmpty }) ?? -1
+        let needed = max(1, min(3, lastFilled + 1))
+        textEntryVisibleSlotCount = max(textEntryVisibleSlotCount, needed)
+    }
+
     func moveTask(from sourceIndex: Int, to destinationIndex: Int) {
         guard canEditPlan,
               plan.tasks.indices.contains(sourceIndex),
@@ -380,6 +394,7 @@ final class AppViewModel: ObservableObject {
 
         voiceDraft = nil
         plan = DailyPlan.empty(for: plan.focusDayID)
+        textEntryVisibleSlotCount = 1
         selectedInputMode = .text
         extractionStatus = ""
         recomputeMomentum()

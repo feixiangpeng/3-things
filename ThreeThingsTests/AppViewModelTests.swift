@@ -287,6 +287,19 @@ final class AppViewModelTests: XCTestCase {
         }
     }
 
+    func testReturnToTextEntryShowsOneTaskSlot() {
+        let viewModel = makeViewModel()
+        viewModel.returnToTextEntry()
+        viewModel.revealNextTextTaskSlot()
+        viewModel.revealNextTextTaskSlot()
+        XCTAssertEqual(viewModel.textEntryVisibleSlotCount, 3)
+
+        viewModel.returnToTextEntry()
+
+        XCTAssertEqual(viewModel.textEntryVisibleSlotCount, 1)
+        XCTAssertEqual(viewModel.selectedInputMode, .text)
+    }
+
     func testEmptyTranscriptDoesNotCallExtractor() async {
         let viewModel = makeViewModel()
 

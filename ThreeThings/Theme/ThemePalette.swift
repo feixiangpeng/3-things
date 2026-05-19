@@ -138,3 +138,22 @@ struct ThemeTealLinkButtonStyle: ButtonStyle {
             .foregroundStyle(ThemePalette.primary.opacity(configuration.isPressed ? 0.65 : 1.0))
     }
 }
+
+/// White pill with teal label and matching stroke (e.g. “Add thing”).
+struct ThemeTealOutlineCapsuleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(ThemePalette.primary)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 12)
+            .background(
+                Color.white.opacity(configuration.isPressed ? 0.92 : 1.0),
+                in: Capsule(style: .continuous)
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(ThemePalette.primary, lineWidth: 1.5)
+            )
+    }
+}
