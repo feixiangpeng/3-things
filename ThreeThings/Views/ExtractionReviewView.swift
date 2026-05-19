@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ExtractionReviewView: View {
     @ObservedObject var viewModel: AppViewModel
+    @ObservedObject var speechManager: SpeechCaptureManager
     @State private var isShowingLockConfirmation = false
     @State private var pendingReplaceExtraIndex: Int?
 
@@ -224,6 +225,19 @@ struct ExtractionReviewView: View {
         }
     }
 
+    private func beginLockFlow() {
+        switch speechManager.phase {
+        case .recording:
+            viewModel.prepareLockFromActiveVoiceCapture()
+            speechManager.stopRecording(deliverFinalTranscript: false)
+        case .transcribing:
+            viewModel.prepareLockFromActiveVoiceCapture()
+        case .idle, .requestingPermission, .failed:
+            break
+        }
+        isShowingLockConfirmation = true
+    }
+
     private var actions: some View {
         VStack(alignment: .leading, spacing: 10) {
             if viewModel.userHasCustomizedVoicePlan {
@@ -234,10 +248,10 @@ struct ExtractionReviewView: View {
             }
 
             Button("Lock Today's Things") {
-                isShowingLockConfirmation = true
+                beginLockFlow()
             }
             .buttonStyle(ThemePrimaryProminentButtonStyle())
-            .disabled(!viewModel.canPresentLockConfirmation || viewModel.isVoiceRecordingActive)
+            .disabled(!viewModel.canPresentLockConfirmation)
 
             Button("Start Over With Typing") {
                 viewModel.returnToTextEntry()

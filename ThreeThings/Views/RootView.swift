@@ -96,7 +96,7 @@ struct RootView: View {
             )
 
             if viewModel.voiceDraft != nil {
-                ExtractionReviewView(viewModel: viewModel)
+                ExtractionReviewView(viewModel: viewModel, speechManager: speechManager)
                     .themeSectionCard()
             }
         }

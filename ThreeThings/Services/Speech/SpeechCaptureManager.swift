@@ -134,12 +134,19 @@ final class SpeechCaptureManager: ObservableObject {
         }
     }
 
-    func stopRecording() {
+    private var deliverFinalTranscriptOnStop = true
+
+    /// Stops capture. When `deliverFinalTranscript` is false, transcript is kept but `onFinalTranscript` is not called (e.g. lock while recording).
+    func stopRecording(deliverFinalTranscript: Bool = true) {
+        deliverFinalTranscriptOnStop = deliverFinalTranscript
         Task { await stopRecordingAsync() }
     }
 
     private func stopRecordingAsync() async {
         guard phase == .recording else { return }
+
+        let shouldDeliverFinal = deliverFinalTranscriptOnStop
+        deliverFinalTranscriptOnStop = true
 
         phase = .transcribing
         clearAudioLevels()
@@ -161,7 +168,9 @@ final class SpeechCaptureManager: ObservableObject {
 
             latestTranscript = trimmed
             errorMessage = nil
-            onFinalTranscript?(trimmed)
+            if shouldDeliverFinal {
+                onFinalTranscript?(trimmed)
+            }
             phase = .idle
             clearAudioLevels()
         } catch {
