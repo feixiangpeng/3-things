@@ -11,16 +11,16 @@ struct RootView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        brandHeader
+                        topBanner
                             .id(RootView.rootScrollTopID)
-
-                        header
 
                         if viewModel.canEditPlan {
                             if viewModel.selectedInputMode == .text {
                                 textModeStack
+                            } else if viewModel.voiceDraft != nil {
+                                voiceDraftStack
                             } else {
-                                voiceModeStack
+                                minimalVoiceHome
                             }
                         } else {
                             LockedPlanView(viewModel: viewModel)
@@ -67,10 +67,27 @@ struct RootView: View {
         }
     }
 
-    private var brandHeader: some View {
+    private var topBanner: some View {
         Text("3-things")
-            .font(.title2.weight(.semibold))
+            .font(.largeTitle.bold())
             .foregroundStyle(ThemePalette.primary)
+            .frame(maxWidth: .infinity)
+            .multilineTextAlignment(.center)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    private var minimalVoiceHome: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 48)
+            VoiceCaptureView(
+                viewModel: viewModel,
+                speechManager: speechManager,
+                layout: .home
+            )
+            Spacer(minLength: 48)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: 420)
     }
 
     private var textModeStack: some View {
@@ -87,34 +104,16 @@ struct RootView: View {
         }
     }
 
-    private var voiceModeStack: some View {
+    private var voiceDraftStack: some View {
         VStack(alignment: .leading, spacing: 20) {
             VoiceCaptureView(
                 viewModel: viewModel,
                 speechManager: speechManager,
-                compact: viewModel.voiceDraft != nil
+                layout: .compact
             )
 
-            if viewModel.voiceDraft != nil {
-                ExtractionReviewView(viewModel: viewModel, speechManager: speechManager)
-                    .themeSectionCard()
-            }
-        }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Today")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(ThemePalette.muted)
-                .textCase(.uppercase)
-                .tracking(0.6)
-            Text("Momentum: \(viewModel.momentum7)/7")
-                .font(.title2.bold())
-                .foregroundStyle(Color.primary)
-            Text(viewModel.progressText)
-                .font(.subheadline)
-                .foregroundStyle(ThemePalette.muted)
+            ExtractionReviewView(viewModel: viewModel, speechManager: speechManager)
+                .themeSectionCard()
         }
     }
 }

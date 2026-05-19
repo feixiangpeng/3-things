@@ -139,6 +139,26 @@ struct ThemeTealLinkButtonStyle: ButtonStyle {
     }
 }
 
+/// Large circular mic / stop control for the minimalist home screen.
+struct ThemeCircularRecordButtonStyle: ButtonStyle {
+    var isStop: Bool = false
+    var diameter: CGFloat = 100
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 34, weight: .semibold))
+            .foregroundStyle(Color.white)
+            .frame(width: diameter, height: diameter)
+            .background(
+                (isStop ? ThemePalette.overflow : ThemePalette.primary)
+                    .opacity(configuration.isPressed ? 0.85 : 1.0),
+                in: Circle()
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
 /// White pill with teal label and matching stroke (e.g. “Add thing”).
 struct ThemeTealOutlineCapsuleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

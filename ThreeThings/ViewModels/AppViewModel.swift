@@ -5,6 +5,7 @@ final class AppViewModel: ObservableObject {
     @Published var plan: DailyPlan
     @Published var selectedInputMode: InputMode = .voice
     @Published var pendingFinalizationDayID: String?
+    /// Trailing 7-day streak count; persisted but not shown in UI yet.
     @Published var momentum7: Int = 0
     @Published var extractionStatus: String = ""
     @Published var isExtracting: Bool = false
