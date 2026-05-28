@@ -53,6 +53,9 @@ struct RootView: View {
         }
         .preferredColorScheme(.light)
         .tint(ThemePalette.primary)
+        .onReceive(NotificationCenter.default.publisher(for: .threeThingsAppDidBecomeActive)) { _ in
+            Task { await viewModel.handleAppForegrounded() }
+        }
         .sheet(
             isPresented: Binding(
                 get: { viewModel.pendingFinalizationDayID != nil },

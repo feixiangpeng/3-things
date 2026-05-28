@@ -53,6 +53,13 @@
 		A00000000000000000000135 /* VoiceDraftSessionLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000131 /* VoiceDraftSessionLogic.swift */; };
 		A00000000000000000000136 /* LiveExtractionScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000132 /* LiveExtractionScheduler.swift */; };
 		A00000000000000000000137 /* LiveExtractionSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000133 /* LiveExtractionSchedulerTests.swift */; };
+		A00000000000000000000140 /* ReminderPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000139 /* ReminderPreferences.swift */; };
+		A00000000000000000000141 /* ScheduledNotificationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013A /* ScheduledNotificationIntent.swift */; };
+		A00000000000000000000142 /* ReminderSchedulePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013B /* ReminderSchedulePolicy.swift */; };
+		A00000000000000000000143 /* LocalNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013C /* LocalNotificationService.swift */; };
+		A00000000000000000000144 /* NotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013D /* NotificationCoordinator.swift */; };
+		A00000000000000000000145 /* ReminderSchedulePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013E /* ReminderSchedulePolicyTests.swift */; };
+		A00000000000000000000146 /* AppViewModelNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000013F /* AppViewModelNotificationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,6 +121,13 @@
 		A00000000000000000000131 /* VoiceDraftSessionLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraftSessionLogic.swift; sourceTree = "<group>"; };
 		A00000000000000000000132 /* LiveExtractionScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveExtractionScheduler.swift; sourceTree = "<group>"; };
 		A00000000000000000000133 /* LiveExtractionSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveExtractionSchedulerTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000139 /* ReminderPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPreferences.swift; sourceTree = "<group>"; };
+		A0000000000000000000013A /* ScheduledNotificationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledNotificationIntent.swift; sourceTree = "<group>"; };
+		A0000000000000000000013B /* ReminderSchedulePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSchedulePolicy.swift; sourceTree = "<group>"; };
+		A0000000000000000000013C /* LocalNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationService.swift; sourceTree = "<group>"; };
+		A0000000000000000000013D /* NotificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCoordinator.swift; sourceTree = "<group>"; };
+		A0000000000000000000013E /* ReminderSchedulePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSchedulePolicyTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000013F /* AppViewModelNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModelNotificationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,8 +200,21 @@
 			children = (
 				A00000000000000000000012 /* Extraction */,
 				A00000000000000000000013 /* Speech */,
+				A00000000000000000000147 /* Notifications */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000147 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000139 /* ReminderPreferences.swift */,
+				A0000000000000000000013A /* ScheduledNotificationIntent.swift */,
+				A0000000000000000000013B /* ReminderSchedulePolicy.swift */,
+				A0000000000000000000013C /* LocalNotificationService.swift */,
+				A0000000000000000000013D /* NotificationCoordinator.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		A00000000000000000000012 /* Extraction */ = {
@@ -312,6 +339,8 @@
 				A00000000000000000000103 /* LiveVoiceExtractionTests.swift */,
 				A00000000000000000000133 /* LiveExtractionSchedulerTests.swift */,
 				A00000000000000000000127 /* VoiceDraftToolEnvironmentTests.swift */,
+				A0000000000000000000013E /* ReminderSchedulePolicyTests.swift */,
+				A0000000000000000000013F /* AppViewModelNotificationTests.swift */,
 			);
 			path = ThreeThingsTests;
 			sourceTree = "<group>";
@@ -435,6 +464,11 @@
 				A00000000000000000000134 /* TranscriptSnapshot.swift in Sources */,
 				A00000000000000000000135 /* VoiceDraftSessionLogic.swift in Sources */,
 				A00000000000000000000136 /* LiveExtractionScheduler.swift in Sources */,
+				A00000000000000000000140 /* ReminderPreferences.swift in Sources */,
+				A00000000000000000000141 /* ScheduledNotificationIntent.swift in Sources */,
+				A00000000000000000000142 /* ReminderSchedulePolicy.swift in Sources */,
+				A00000000000000000000143 /* LocalNotificationService.swift in Sources */,
+				A00000000000000000000144 /* NotificationCoordinator.swift in Sources */,
 				A0000000000000000000003B /* AppViewModel.swift in Sources */,
 				A0000000000000000000003C /* RootView.swift in Sources */,
 				A0000000000000000000003D /* TextCaptureView.swift in Sources */,
@@ -466,6 +500,8 @@
 				A00000000000000000000102 /* LiveVoiceExtractionTests.swift in Sources */,
 				A00000000000000000000137 /* LiveExtractionSchedulerTests.swift in Sources */,
 				A00000000000000000000126 /* VoiceDraftToolEnvironmentTests.swift in Sources */,
+				A00000000000000000000145 /* ReminderSchedulePolicyTests.swift in Sources */,
+				A00000000000000000000146 /* AppViewModelNotificationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

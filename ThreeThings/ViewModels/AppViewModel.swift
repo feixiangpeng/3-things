@@ -29,6 +29,17 @@ final class AppViewModel: ObservableObject {
         var momentumOutcomes: [String: Bool]
         var lastFinalizedFocusDayID: String?
         var pendingFinalizationDayID: String?
+        var eodDeferralCounts: [String: Int]?
+    }
+
+    enum NotificationRefreshReason: String {
+        case bootstrap
+        case lockPlan
+        case toggleCompletion
+        case finalizePendingDay
+        case finalizeCurrentDay
+        case eodDeferral
+        case foreground
     }
 
     private let storageKey = "three_things.v1.state"
@@ -37,9 +48,12 @@ final class AppViewModel: ObservableObject {
     private let mockVoiceDraftProvider: MockVoiceDraftProvider
     private let dateProvider: () -> Date
     private let liveExtractionDebounceNanoseconds: UInt64
+    private let notificationScheduler: any LocalNotificationScheduling
+    private let notificationCoordinator: NotificationCoordinator
 
     private var momentumOutcomes: [String: Bool] = [:]
     private var lastFinalizedFocusDayID: String?
+    private var eodDeferralCounts: [String: Int] = [:]
 
     private var lastLiveExtractionSource: String?
     private var liveScheduler: LiveExtractionScheduler
@@ -51,13 +65,17 @@ final class AppViewModel: ObservableObject {
         voiceDraftExtractor: (any VoiceDraftExtracting)? = nil,
         mockVoiceDraftProvider: MockVoiceDraftProvider = MockVoiceDraftProvider(),
         dateProvider: @escaping () -> Date = Date.init,
-        liveExtractionDebounceNanoseconds: UInt64 = 900_000_000
+        liveExtractionDebounceNanoseconds: UInt64 = 900_000_000,
+        notificationScheduler: (any LocalNotificationScheduling)? = nil,
+        notificationCoordinator: NotificationCoordinator = .shared
     ) {
         self.defaults = defaults
         self.voiceDraftExtractor = voiceDraftExtractor ?? AppVoiceDraftExtractorFactory.default()
         self.mockVoiceDraftProvider = mockVoiceDraftProvider
         self.dateProvider = dateProvider
         self.liveExtractionDebounceNanoseconds = liveExtractionDebounceNanoseconds
+        self.notificationScheduler = notificationScheduler ?? LocalNotificationService()
+        self.notificationCoordinator = notificationCoordinator
         self.plan = DailyPlan.empty(for: FocusDay.id(for: dateProvider()))
         self.liveScheduler = LiveExtractionScheduler(
             configuration: LiveExtractionScheduler.Configuration(
@@ -74,6 +92,18 @@ final class AppViewModel: ObservableObject {
         saveState()
 
         installLiveScheduler()
+
+        notificationCoordinator.onPendingAction = { [weak self] action in
+            self?.handlePendingNotificationAction(action)
+        }
+
+        if let pendingAction = notificationCoordinator.consumePendingAction() {
+            handlePendingNotificationAction(pendingAction)
+        }
+
+        Task {
+            await refreshNotifications(reason: .bootstrap)
+        }
     }
 
     private func installLiveScheduler() {
@@ -361,6 +391,7 @@ final class AppViewModel: ObservableObject {
         plan.isLocked = true
         recomputeMomentum()
         saveState()
+        Task { await refreshNotifications(reason: .lockPlan) }
     }
 
     func toggleCompletion(taskID: UUID) {
@@ -372,6 +403,7 @@ final class AppViewModel: ObservableObject {
         plan.tasks[index].isCompleted.toggle()
         recomputeMomentum()
         saveState()
+        Task { await refreshNotifications(reason: .toggleCompletion) }
     }
 
     func finalizePendingDay(completed: Bool) {
@@ -383,6 +415,26 @@ final class AppViewModel: ObservableObject {
 
         recomputeMomentum()
         saveState()
+        Task { await refreshNotifications(reason: .finalizePendingDay) }
+    }
+
+    func handleAppForegrounded() async {
+        var shouldRefresh = true
+        if let pendingAction = notificationCoordinator.consumePendingAction() {
+            switch pendingAction {
+            case .eodRemindLater(let focusDayID):
+                shouldRefresh = false
+                if focusDayID == plan.focusDayID {
+                    await handleEODRemindLater()
+                }
+            default:
+                handlePendingNotificationAction(pendingAction)
+            }
+        }
+
+        if shouldRefresh {
+            await refreshNotifications(reason: .foreground)
+        }
     }
 
     func startVoiceDraftReview(from draft: VoiceExtractionDraft) {
@@ -805,6 +857,7 @@ final class AppViewModel: ObservableObject {
         momentumOutcomes = state.momentumOutcomes
         lastFinalizedFocusDayID = state.lastFinalizedFocusDayID
         pendingFinalizationDayID = state.pendingFinalizationDayID
+        eodDeferralCounts = state.eodDeferralCounts ?? [:]
     }
 
     private func saveState() {
@@ -812,7 +865,8 @@ final class AppViewModel: ObservableObject {
             plan: plan,
             momentumOutcomes: momentumOutcomes,
             lastFinalizedFocusDayID: lastFinalizedFocusDayID,
-            pendingFinalizationDayID: pendingFinalizationDayID
+            pendingFinalizationDayID: pendingFinalizationDayID,
+            eodDeferralCounts: eodDeferralCounts
         )
 
         guard let data = try? JSONEncoder().encode(state) else { return }
@@ -858,5 +912,103 @@ final class AppViewModel: ObservableObject {
             cleanedTranscript: voiceDraft.cleanedTranscript
         )
         plan.detectedMoreThanThree = self.voiceDraft?.detectedMoreThanThree ?? false
+    }
+
+    private var isCurrentFocusDayFinalized: Bool {
+        lastFinalizedFocusDayID == plan.focusDayID || momentumOutcomes[plan.focusDayID] != nil
+    }
+
+    private func currentEODDeferralCount() -> Int {
+        eodDeferralCounts[plan.focusDayID, default: 0]
+    }
+
+    func refreshNotifications(reason: NotificationRefreshReason) async {
+        _ = await notificationScheduler.requestAuthorizationIfNeeded()
+        await notificationScheduler.registerCategories()
+
+        let preferences = ReminderPreferences.current
+        let context = ReminderScheduleContext(
+            now: dateProvider(),
+            focusDayID: plan.focusDayID,
+            plan: plan,
+            isCurrentDayFinalized: isCurrentFocusDayFinalized,
+            eodDeferralCount: currentEODDeferralCount(),
+            preferences: preferences
+        )
+
+        let schedule = ReminderSchedulePolicy.makeSchedule(for: context)
+
+        if schedule.shouldAutoFinalizeComplete {
+            finalizeCurrentFocusDay(completed: true, markAllComplete: false)
+            return
+        }
+
+        await notificationScheduler.applySchedule(schedule.intents, activeFocusDayID: plan.focusDayID)
+    }
+
+    private func handlePendingNotificationAction(_ action: PendingNotificationAction) {
+        switch action {
+        case .openApp:
+            break
+
+        case .eodYesAllDone(let focusDayID):
+            guard focusDayID == plan.focusDayID else { return }
+            finalizeCurrentFocusDay(completed: true, markAllComplete: true)
+
+        case .eodNotQuite(let focusDayID):
+            guard focusDayID == plan.focusDayID else { return }
+            finalizeCurrentFocusDay(completed: false, markAllComplete: false)
+
+        case .eodRemindLater(let focusDayID):
+            guard focusDayID == plan.focusDayID else { return }
+            Task { await handleEODRemindLater() }
+        }
+    }
+
+    private func finalizeCurrentFocusDay(completed: Bool, markAllComplete: Bool) {
+        guard plan.isLocked, !isCurrentFocusDayFinalized else { return }
+
+        if markAllComplete || completed {
+            for index in plan.tasks.indices {
+                plan.tasks[index].isCompleted = true
+            }
+        }
+
+        momentumOutcomes[plan.focusDayID] = completed
+        lastFinalizedFocusDayID = plan.focusDayID
+        eodDeferralCounts[plan.focusDayID] = nil
+
+        recomputeMomentum()
+        saveState()
+
+        Task { await refreshNotifications(reason: .finalizeCurrentDay) }
+    }
+
+    private func handleEODRemindLater() async {
+        guard plan.isLocked, !isCurrentFocusDayFinalized else { return }
+
+        let preferences = ReminderPreferences.current
+        let currentCount = currentEODDeferralCount()
+        guard currentCount < preferences.maxEODDeferrals else { return }
+
+        let nextCount = currentCount + 1
+        eodDeferralCounts[plan.focusDayID] = nextCount
+        saveState()
+
+        let completedCount = plan.tasks.filter(\.isCompleted).count
+        let totalCount = max(plan.tasks.count, 1)
+
+        guard let deferIntent = ReminderSchedulePolicy.makeDeferralIntent(
+            focusDayID: plan.focusDayID,
+            deferralIndex: nextCount - 1,
+            now: dateProvider(),
+            completedCount: completedCount,
+            totalCount: totalCount,
+            preferences: preferences
+        ) else {
+            return
+        }
+
+        await notificationScheduler.scheduleIntent(deferIntent)
     }
 }
